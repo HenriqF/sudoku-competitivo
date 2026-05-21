@@ -19,12 +19,14 @@ if(localStorage.getItem("tok")!==null){
         }
 
         if(message.startsWith("ganhou:")){
+            timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
             ganhador("19");
         }  
             
         if(message.startsWith("perdeu:")){
+            timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
             perdedor("19");
@@ -54,14 +56,11 @@ if(localStorage.getItem("tok")!==null){
 
     botao.addEventListener("click", () => {
         sock.send(input.value);
-        document.getElementById("body").style.backgroundColor = "#f0f2f5";
-        document.getElementById("victory").style.display = "none";
-        document.getElementById("defeat").style.display = "none";
     });
 
     function jogando(sudoku){
-
-        for(let i=1,  j=8; j<sudoku.length;i++, j++){
+        timer();
+        for(let i=1,  j=7; j<sudoku.length;i++, j++){
             if(sudoku[j]!='_'){
                 document.getElementById(`${i}`).value = sudoku[j]
                 document.getElementById(`${i}`).disabled = true
@@ -80,6 +79,8 @@ if(localStorage.getItem("tok")!==null){
         }
         sock.send(out)
     }
+
+    function jogarDnv(){sock.send("jogar")}
 }
 
 let timerInterval;
@@ -119,3 +120,58 @@ function timer() {
         }
     }, 10); // 1 centisegundo
 }
+
+const msg_posjogo = document.getElementById("vic-der");
+const pontos = document.getElementById("pdls");
+
+function ganhador(lucro){
+    Carregardados();
+    msg_posjogo.textContent = "VITÓRIA";
+    pontos.style.color = "#7dda75";
+    pontos.textContent = `+${lucro}`;
+}
+
+function perdedor(preju){
+    Carregardados();
+    msg_posjogo.textContent = "DERROTA";
+    pontos.style.color = "#eb6a6a";
+    pontos.textContent = `-${preju}`;
+}
+
+const infoNome = document.getElementById("nome");
+const infoEmail = document.getElementById("email");
+const infoFoto = document.getElementById("foto");
+const infoPos = document.getElementById("pos");
+const infoElo = document.getElementById("elo");
+const infoWins = document.getElementById("wins");
+const infoDefeats = document.getElementById("defeats");
+const infoMelhorTempo = document.getElementById("besttime");
+
+async function Carregardados(){
+    try {
+        let nome = localStorage.getItem("user")
+
+        const response = await fetch(`https://${host}:7185/stats/${nome}`);
+
+        const data = await response.json();
+
+        infoNome.textContent = localStorage.getItem("user");
+        infoEmail.textContent = data.email;
+        infoFoto.src = data.foto_link;
+        infoPos.textContent = `Rank: ${data.pos_global}`;
+        infoElo.textContent = `Elo: ${data.elo}`;
+        infoWins.textContent = `Vitórias: ${data.vitorias}`;
+        infoDefeats.textContent = `Derrotas: ${data.partidas - data.vitorias}`;
+        infoMelhorTempo.textContent = `Melhor tempo: ${data.melhor_tempo}`;
+
+
+    } catch (error) {
+        infoNome.textContent = "dois";
+        return;
+    }
+    
+};
+
+perdedor(20);
+
+function menu() {document.getElementById("menu").click();}
