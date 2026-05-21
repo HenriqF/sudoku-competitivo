@@ -30,6 +30,8 @@ public class MatchMaker : BackgroundService, IHostedService
 
 
     private readonly Channel<mm_player_info> _queue;
+
+
     private List<mm_player_info> _jogadores;
 
 
@@ -97,6 +99,16 @@ public class MatchMaker : BackgroundService, IHostedService
                     while (_queue.Reader.TryRead(out mm_player_info? jog))
                     {
                         if (jog == null)continue;
+
+                        if (jog.saiu)
+                        {
+                            lock (_jogadores)
+                            {
+                                _jogadores.RemoveAll(j => j.nome == jog.nome);
+                            }
+                            continue;
+                        }
+
                         lock (_jogadores)
                         {
                             _jogadores.Add(jog);
@@ -114,7 +126,6 @@ public class MatchMaker : BackgroundService, IHostedService
             {
                 if (cancelar.IsCancellationRequested) break;
 
-                Console.WriteLine("mm ping");
                 if (_jogadores.Count > 0) {
                     await match_make(cancelar);
                 }
@@ -139,8 +150,6 @@ public class WebSocketServer
     private static ConcurrentDictionary<string, WebSocket> _clients_sockets = new(); //playre weebsocket
     private static ConcurrentDictionary<string, user_stats> _clients_stats = new(); //player stats ()
 
-    private static int _elo_prestiege_size = 300;
-    private static ConcurrentDictionary<int, string> _queued_clients = new();  //leo bucket, playre
 
     private static ConcurrentDictionary<string, string[]> _playing_clients_boards = new();  //player, sudoku_board
     private static ConcurrentDictionary<string, DateTime> _playing_clients_start = new();  //player, tempo_inicio
@@ -185,68 +194,6 @@ public class WebSocketServer
 
         Console.WriteLine($"TABULEIROS: {sudoku.boards[0]}, {sudoku.boards[1]}");
     }
-
-
-
-
-    private static async void FindMatch(string player_name, string id, WebSocket webSocket)
-    {
-        
-        int elo_bucket = _clients_stats[player_name].elo/_elo_prestiege_size;
-        if (_queued_clients.ContainsKey(elo_bucket))
-        {
-            if (_queued_clients[elo_bucket] == id)
-            {
-                await MessageClientAsync("já está dentro da queue...", webSocket);
-                return;
-            }
-
-            if (_queued_clients.TryRemove(elo_bucket, out string? opp_id))
-            {
-                var client = new HttpClient();
-                new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>(
-                    "http://localhost:5121/new"
-                );
-
-                if (sudoku == null)
-                {
-                    await MessageClientAsync("falha ao gerar sudokus...", webSocket);
-                    await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[opp_id]);
-                    return;
-                }
-
-                _playing_clients_boards.TryAdd(id, sudoku.boards);
-                _playing_clients_boards.TryAdd(opp_id, sudoku.boards);
-
-                _playing_opponent.TryAdd(id, opp_id);
-                _playing_opponent.TryAdd(opp_id, id);
-
-                await MessageClientAsync("sudoku:" + sudoku.boards[1], webSocket);
-                await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[opp_id]);
-
-                DateTime inicio = DateTime.Now;
-                _playing_clients_start.TryAdd(id, inicio);
-                _playing_clients_start.TryAdd(opp_id, inicio);
-
-                Console.WriteLine(sudoku.boards[0]);
-                Console.WriteLine(sudoku.boards[1]);
-                return;
-            }
-        }
-
-
-        if (_queued_clients.TryAdd(elo_bucket, id))
-        {
-            await MessageClientAsync($"procurando por oponente... {elo_bucket}", webSocket);
-            return;
-        }
-        else
-        {
-            await MessageClientAsync($"falha em entrar na queue.", webSocket);
-            return;
-        }
-    }
-
 
 
 
@@ -410,8 +357,6 @@ public class WebSocketServer
             string client_id = usuario;
             
 
-
-
             var get_stats_response = await client.GetAsync($"http://localhost:5127/stats/{client_id}");
 
             if (! get_stats_response.IsSuccessStatusCode)return;
@@ -449,13 +394,16 @@ public class WebSocketServer
             }
             finally
             {
-                if (!_playing_clients_boards.ContainsKey(client_id))
-                {
-                    int elo_bucket = _clients_stats[client_id].elo/_elo_prestiege_size;
-                    _queued_clients.TryRemove(elo_bucket, out _);
-                }
+                mm_player_info saindo = new mm_player_info(
+                    nome: client_id,
+                    elo: 6769,
+                    range: 61,
+                    entrada: DateTime.Now
+                );
+                saindo.saiu = true;
+                await mm.entrar_queue(saindo);
 
-                _clients_stats.TryRemove(client_id, out _);
+                //_clients_stats.TryRemove(client_id, out _);
                 _clients_sockets.TryRemove(client_id, out _);
                 Console.WriteLine($"saiu: {client_id}");
             }
@@ -474,11 +422,14 @@ public record mm_player_info{
     public int range { get; set; }
     public DateTime entrada { get; set; }
 
+    public bool saiu { get; set; }
+
     public mm_player_info(string nome, int elo, int range, DateTime entrada)
     {
         this.nome = nome;
         this.elo = elo;
         this.range = range;
         this.entrada = entrada;        
+        saiu = false;
     }
 };
