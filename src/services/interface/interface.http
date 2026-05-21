@@ -32,3 +32,9 @@ Content-Type: application/json
 
 
 //acho que tem 
+
+###
+GET https://localhost:7185/jogartoken/pedro
+
+###
+GET https://localhost:7185/confirmar/ae0acf1309ba4adc9980ae40941aa39a

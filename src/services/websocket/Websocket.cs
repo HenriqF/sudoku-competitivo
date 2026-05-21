@@ -49,14 +49,14 @@ public class MatchMaker : BackgroundService, IHostedService
     }
 
 
-    private async Task<bool> match_make(CancellationToken c)
+    private bool match_make()
     {
         //
         foreach (mm_player_info j in _jogadores)
         {
             int diff = (int)(DateTime.Now - j.entrada).TotalMilliseconds;
-            j.range = ((diff / 3000) * 100) + 200;
-            Console.WriteLine($"JOGADOR NA QUEUE MEU DUS OMG {j.nome}, {diff}, {j.range}, {j.elo}");
+            j.range = ((diff / 6000) * 100) + 100;
+            Console.WriteLine($"{j.nome} procurando: ({j.elo+j.range} - {j.elo-j.range})elo - espera {diff}ms");
         } 
 
 
@@ -117,7 +117,7 @@ public class MatchMaker : BackgroundService, IHostedService
 
 
 
-                    while(await match_make(cancelar));
+                    while(match_make());
                 }
 
 
@@ -127,7 +127,7 @@ public class MatchMaker : BackgroundService, IHostedService
                 if (cancelar.IsCancellationRequested) break;
 
                 if (_jogadores.Count > 0) {
-                    await match_make(cancelar);
+                    while(match_make());
                 }
             }
             catch (Exception e)
@@ -143,7 +143,6 @@ public class MatchMaker : BackgroundService, IHostedService
 
 public class WebSocketServer
 {
-    
     private static MatchMaker mm = null!;
 
     //variaveis    
@@ -151,18 +150,43 @@ public class WebSocketServer
     private static ConcurrentDictionary<string, user_stats> _clients_stats = new(); //player stats ()
 
 
-    private static ConcurrentDictionary<string, string[]> _playing_clients_boards = new();  //player, sudoku_board
-    private static ConcurrentDictionary<string, DateTime> _playing_clients_start = new();  //player, tempo_inicio
-    private static ConcurrentDictionary<string, string> _playing_opponent = new(); //player opp
-
+    private static ConcurrentDictionary<string, pc_info> _playing_client_info = new();
     //-------
 
 
     private static void RemovePlayingClient(string id)
     {   
-        _playing_clients_start.TryRemove(id, out _);
-        _playing_clients_boards.TryRemove(id, out _);
-        _playing_opponent.TryRemove(id, out _);
+        _playing_client_info.TryRemove(id, out _);
+    }
+
+    private static async Task MessageClientAsync(string message, WebSocket webSocket)
+    {
+        try
+        {
+            byte[] response = Encoding.UTF8.GetBytes(message);
+            await webSocket.SendAsync(new ArraySegment<byte>(response), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"erro ao mandar mensagem: {e}");
+            return;
+        }
+    }
+
+
+
+
+    private static async Task<bool> UpdateStats(string jog)
+    {
+        var client = new HttpClient();
+        var get_stats_response = await client.GetAsync($"http://localhost:5127/stats/{jog}");
+        if (! get_stats_response.IsSuccessStatusCode)return false;
+
+        user_stats? stats = await client.GetFromJsonAsync<user_stats>($"http://localhost:5127/stats/{jog}");
+        if (stats == null)return false;
+
+        _clients_stats.AddOrUpdate(jog, stats, (k, e) => stats);
+        return true;
     }
 
     private static async void MatchFound(string p1, string p2)
@@ -178,37 +202,84 @@ public class WebSocketServer
             await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[p2]);
             return;
         }
+        await MessageClientAsync($"opp: {p2}", _clients_sockets[p1]);
+        await MessageClientAsync($"opp: {p1}", _clients_sockets[p2]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[0]}", _clients_sockets[p1]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p2]);
 
-        _playing_clients_boards.TryAdd(p1, sudoku.boards);
-        _playing_clients_boards.TryAdd(p2, sudoku.boards);
 
-        _playing_opponent.TryAdd(p1, p2);
-        _playing_opponent.TryAdd(p2, p1);
+        DateTime inicio_jogo = DateTime.Now;
 
-        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p1]);
-        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p2]);
+        _playing_client_info.TryAdd(p1, new pc_info(
+            boards: sudoku.boards,
+            opp: p2,
+            inicio: inicio_jogo
+        ));
+        _playing_client_info.TryAdd(p2, new pc_info(
+            boards: sudoku.boards,
+            opp: p1,
+            inicio: inicio_jogo
+        ));
 
-        DateTime inicio = DateTime.Now;
-        _playing_clients_start.TryAdd(p1, inicio);
-        _playing_clients_start.TryAdd(p2, inicio);
 
-        Console.WriteLine($"TABULEIROS: {sudoku.boards[0]}, {sudoku.boards[1]}");
+        Console.WriteLine($"{p1} vs {p2} - tabuleiros: {sudoku.boards[0]}, {sudoku.boards[1]}");
     }
 
-
-
-    private static async Task MessageClientAsync(string message, WebSocket webSocket)
+    private static async Task MatchEnd(string gan, string perd)//gangnamstyle
     {
-        try
-        {
-            byte[] response = Encoding.UTF8.GetBytes(message);
-            await webSocket.SendAsync(new ArraySegment<byte>(response), WebSocketMessageType.Text, true, CancellationToken.None);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"erro ao mandar mensagem: {e}");
-            return;
-        }
+        DateTime fim = DateTime.Now;
+        TimeSpan duracao = fim - _playing_client_info[gan].inicio;
+        int dur_total_ms = (int) duracao.TotalMilliseconds;
+
+
+        int winner_elo = _clients_stats[gan].elo;
+        int loser_elo = _clients_stats[perd].elo;
+
+        int prob_w_ganhar = (int) ( 1.0 /( 1 + Math.Pow(10, (loser_elo-winner_elo)/350.0)) *100 );
+        int prob_l_ganhar = 100-prob_w_ganhar;
+
+        //Console.WriteLine($"{prob_w_ganhar}%, {prob_l_ganhar}%");
+
+        // int k_factor_w = Math.Max(10, 40-((winner_elo-850)/80));
+        // int k_factor_l = Math.Max(10, 40-((loser_elo-850)/80));
+        int k_factor_w = 40;
+        int k_factor_l = 40;
+
+
+        int elo_diff_w = (int) (k_factor_w * ((100 - prob_w_ganhar)/100.0));
+        int elo_diff_l = (int) (k_factor_l * ((0 - prob_l_ganhar)/100.0));
+
+        int new_elo_w = winner_elo + elo_diff_w;
+        int new_elo_l = loser_elo + elo_diff_l;
+
+        string boards = _playing_client_info[gan].boards[0] + _playing_client_info[gan].boards[1]; 
+
+
+        fim_partida fp = new fim_partida(
+            ganhador: gan,
+            perdedor: perd,
+            tabuleiros: boards,
+            elo_diff_ganhador: new_elo_w,
+            elo_diff_perdedor: new_elo_l,
+            duracao_ms: dur_total_ms
+        );
+
+        var client = new HttpClient();
+        await client.PutAsJsonAsync("http://localhost:5127/fimpartida", fp);
+
+
+        _clients_sockets.TryGetValue(perd, out WebSocket? lws);
+        _clients_sockets.TryGetValue(gan, out WebSocket? ganws);
+
+
+        if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l}" , lws);
+        if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w}" , ganws);
+
+        await UpdateStats(gan);
+        await UpdateStats(perd);
+
+        RemovePlayingClient(gan);
+        RemovePlayingClient(perd);
     }
 
 
@@ -226,63 +297,31 @@ public class WebSocketServer
             Console.WriteLine($"{id}: {message}");
 
 
-            if (_playing_clients_boards.ContainsKey(id))
+            if (_playing_client_info.ContainsKey(id))
             {
-                if (message == _playing_clients_boards[id][1])
+                if (message == _playing_client_info[id].boards[1])
                 {
-                    DateTime fim = DateTime.Now;
-                    TimeSpan duracao = fim - _playing_clients_start[id];
-                    int dur_total_ms = (int) duracao.TotalMilliseconds;
-
-
-                    int winner_elo = _clients_stats[id].elo;
-                    int loser_elo = _clients_stats[_playing_opponent[id]].elo;
-
-                    int prob_w_ganhar = (int) ( 1.0 /( 1 + Math.Pow(10, (loser_elo-winner_elo)/350.0)) *100 );
-                    int prob_l_ganhar = 100-prob_w_ganhar;
-
-                    //Console.WriteLine($"{prob_w_ganhar}%, {prob_l_ganhar}%");
-
-                    // int k_factor_w = Math.Max(10, 40-((winner_elo-850)/80));
-                    // int k_factor_l = Math.Max(10, 40-((loser_elo-850)/80));
-                    int k_factor_w = 40;
-                    int k_factor_l = 40;
-
-                    int elo_diff_w = (int) (winner_elo + k_factor_w * ((100 - prob_w_ganhar)/100.0));
-                    int elo_diff_l = (int) (loser_elo + k_factor_l * ((0 - prob_l_ganhar)/100.0));
-
-                    string boards = _playing_clients_boards[id][0] +  _playing_clients_boards[id][1]; 
-
-
-
+                    await MatchEnd(id, _playing_client_info[id].opp);
+                }
+                
+                else if (message.StartsWith("abandonar"))
+                {
+                    await MatchEnd(_playing_client_info[id].opp, id);
+                }
+                else if (!message.StartsWith("jogar"))
+                {
+                    if (_playing_client_info[id].strikes == 2)
+                    {
+                        await MatchEnd(_playing_client_info[id].opp, id);
+                    }
+                    else
+                    {
+                        _playing_client_info[id].strikes += 1;
+                        await MessageClientAsync($"strike: {_playing_client_info[id].strikes}" , webSocket); 
+                    }
                     
-                    fim_partida fp = new fim_partida(
-                        ganhador: id,
-                        perdedor: _playing_opponent[id],
-                        tabuleiros: boards,
-                        elo_diff_ganhador: elo_diff_w,
-                        elo_diff_perdedor: elo_diff_l,
-                        duracao_ms: dur_total_ms
-                    );
-
-                    var client = new HttpClient();
-                    await client.PutAsJsonAsync("http://localhost:5127/fimpartida", fp);
-
-
-
-
-
-                    _clients_sockets.TryGetValue(_playing_opponent[id], out WebSocket? oppws);
-                    if (oppws != null)await MessageClientAsync($"perdeu: {elo_diff_l}elo" , oppws);
-                    await MessageClientAsync($"ganhou: {elo_diff_w}elo" , webSocket);
-
-                    RemovePlayingClient(_playing_opponent[id]);
-                    RemovePlayingClient(id);
                 }
-                else
-                {
-                    await MessageClientAsync("echo:" + message , webSocket);
-                }
+                await MessageClientAsync($"echo: {message}" , webSocket);
             }
 
 
@@ -297,15 +336,14 @@ public class WebSocketServer
                 );
 
                 await mm.entrar_queue(nj);
+                await MessageClientAsync("procurando por oponente..." , webSocket);
 
-                //string player_name = id;
-                //FindMatch(player_name, id, webSocket);
             }
 
 
             else
             {
-                await MessageClientAsync("echo:" + message , webSocket);
+                await MessageClientAsync($"echo: {message}" , webSocket);
             }
 
 
@@ -357,32 +395,35 @@ public class WebSocketServer
             string client_id = usuario;
             
 
-            var get_stats_response = await client.GetAsync($"http://localhost:5127/stats/{client_id}");
+            // var get_stats_response = await client.GetAsync($"http://localhost:5127/stats/{client_id}");
+            // if (! get_stats_response.IsSuccessStatusCode)return;
 
-            if (! get_stats_response.IsSuccessStatusCode)return;
-
-            user_stats? stats = await client.GetFromJsonAsync<user_stats>($"http://localhost:5127/stats/{client_id}");
-            if (stats == null)return;
+            // user_stats? stats = await client.GetFromJsonAsync<user_stats>($"http://localhost:5127/stats/{client_id}");
+            // if (stats == null)return;
 
 
 
             if (_clients_sockets.ContainsKey(client_id)){
+                await MessageClientAsync($"recusado:", web_socket);
                 Console.WriteLine($"CONECXAO RECUSADA POR JA TA JOGANDO: {client_id}");
                 return;
             }
 
 
-            if (_playing_clients_boards.TryGetValue(client_id, out var boards))
+            if (_playing_client_info.TryGetValue(client_id, out pc_info? info))
             {   
                 Console.WriteLine($"CLIENTE JGOANDO VOLTOU MEU DEUS É CALASEWING! {client_id}");
-                await MessageClientAsync("sudoku:" + boards[1], web_socket);
+                await MessageClientAsync($"sudoku: {info.boards[1]}", web_socket);
+                await MessageClientAsync($"tempopassado: {(int)(DateTime.Now - info.inicio).TotalMilliseconds}", web_socket);
             }
 
 
             try
             {
                 _clients_sockets.TryAdd(client_id, web_socket);
-                _clients_stats.TryAdd(client_id, stats);
+                if (! await UpdateStats(client_id)) return;
+
+                // _clients_stats.TryAdd(client_id, stats);
 
                 Console.WriteLine($"novo cliente: {client_id}");
                 await MessageClientAsync($"voce é {client_id}", web_socket);
@@ -415,6 +456,23 @@ public class WebSocketServer
 
 
 
+
+public record pc_info
+{
+    public string[] boards {get; set;}
+    public string opp {get; set;}
+    public DateTime inicio {get; set;}
+
+    public int strikes {get; set;}
+
+    public pc_info(string[] boards, string opp, DateTime inicio)
+    {
+        this.boards = boards;
+        this.opp = opp;
+        this.inicio = inicio;
+        strikes = 0;
+    }
+}
 
 public record mm_player_info{
     public string nome { get; set; }
