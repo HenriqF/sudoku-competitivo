@@ -5,7 +5,7 @@ if(localStorage.getItem("tok")!==null){
     const sock = new WebSocket(`ws://${host}:5015/ws/${localStorage.getItem("tok")}`); 
 
     sock.onopen = () => {
-        input.value = "jogar"
+        sock.send("jogar");
     }; 
 
     sock.onmessage = (event) => {
@@ -22,14 +22,14 @@ if(localStorage.getItem("tok")!==null){
             timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
-            ganhador("19");
+            ganhador(message.substring(8));
         }  
             
         if(message.startsWith("perdeu:")){
             timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
-            perdedor("19");
+            perdedor(message.substring(8));
         }
 
         if(message.startsWith("procurando por oponente...")){
@@ -38,6 +38,7 @@ if(localStorage.getItem("tok")!==null){
         }
 
         resposta.textContent = message;
+        console.log(message);
     };
 
     sock.onerror = (erro) => {
@@ -60,7 +61,7 @@ if(localStorage.getItem("tok")!==null){
 
     function jogando(sudoku){
         timer();
-        for(let i=1,  j=7; j<sudoku.length;i++, j++){
+        for(let i=1, j=8; j<sudoku.length;i++, j++){
             if(sudoku[j]!='_'){
                 document.getElementById(`${i}`).value = sudoku[j]
                 document.getElementById(`${i}`).disabled = true
@@ -128,14 +129,14 @@ function ganhador(lucro){
     Carregardados();
     msg_posjogo.textContent = "VITÓRIA";
     pontos.style.color = "#7dda75";
-    pontos.textContent = `+${lucro}`;
+    pontos.textContent = `+${lucro} de elo..`;
 }
 
 function perdedor(preju){
     Carregardados();
     msg_posjogo.textContent = "DERROTA";
     pontos.style.color = "#eb6a6a";
-    pontos.textContent = `-${preju}`;
+    pontos.textContent = `${preju} de elo..`;
 }
 
 const infoNome = document.getElementById("nome");
