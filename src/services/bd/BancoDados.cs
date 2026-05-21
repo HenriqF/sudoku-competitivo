@@ -180,7 +180,7 @@ public class Program
         Usuario? user = await cont.usuarios.Include(u => u.Stats).FirstOrDefaultAsync(u => u.nome == nome);
         if (user == null) return false;
         
-        if (user.Stats!.melhor_tempo < tempo)
+        if (user.Stats!.melhor_tempo > tempo)
         {
             user.Stats!.melhor_tempo = tempo;
             cont.SaveChanges();
