@@ -3,79 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>front</title>
+    <title>Sudoku Game</title>
+    <link rel="icon" type="image/x-icon" href="path/to/your-icon.ico">
     <link rel="stylesheet" href="css/game.css">
 </head>
 <body id="body">
-    <button id="butao">Mandar</button>
-    <input id="input" placeholder="mensagem"></input>
-    <br>
-    <label>resposta:</label>
-    <label id="resposta">porraloca</label>
-    <div id="searching">
+    <div hidden>
+        <button id="butao">Mandar</button>
+        <input id="input" placeholder="mensagem"></input>
+        <br>
+        <label>resposta:</label>
+        <label id="resposta">porraloca</label>
+    </div>
+
+    <div id="searching" style="display: none;">
         <h1>Procurando jogador...</h1>
     </div>
-    <div id="victory">
-        <h1>VITÓRIA!</h1>
-    </div>
-    <div id="defeat">
-        <h1>DERROTA! =C</h1>
-    </div>
-    <div class="um" id="sus" style="display:none">
-        <br><br>
-        <textarea maxlength="1" id="1"></textarea>
-        <textarea maxlength="1" id="2"></textarea>
-        <textarea maxlength="1" class="last" id="3"></textarea>
 
-        <textarea maxlength="1" id="4"></textarea>
-        <textarea maxlength="1" id="5"></textarea>
-        <textarea maxlength="1" id="6"></textarea>
-        <br>
-        <textarea maxlength="1" id="7"></textarea>
-        <textarea maxlength="1" id="8"></textarea>
-        <textarea maxlength="1" class="last" id="9"></textarea>
-
-        <textarea maxlength="1" id="10"></textarea>
-        <textarea maxlength="1" id="11"></textarea>
-        <textarea maxlength="1" id="12"></textarea>
-        <br>
-        <br>
-        <textarea maxlength="1" id="13"></textarea>
-        <textarea maxlength="1" id="14"></textarea>
-        <textarea maxlength="1" class="last" id="15"></textarea>
-
-        <textarea maxlength="1" id="16"></textarea>
-        <textarea maxlength="1" id="17"></textarea>
-        <textarea maxlength="1" id="18"></textarea>
-        <br>
-        <textarea maxlength="1" id="19"></textarea>
-        <textarea maxlength="1" id="20"></textarea>
-        <textarea maxlength="1" class="last" id="21"></textarea>
-
-        <textarea maxlength="1" id="22"></textarea>
-        <textarea maxlength="1" id="23"></textarea>
-        <textarea maxlength="1" id="24"></textarea>
-        <br>
-        <br>
-        <textarea maxlength="1" id="25"></textarea>
-        <textarea maxlength="1" id="26"></textarea>
-        <textarea maxlength="1" class="last" id="27"></textarea>
-
-        <textarea maxlength="1" id="28"></textarea>
-        <textarea maxlength="1" id="29"></textarea>
-        <textarea maxlength="1" id="30"></textarea>
-        <br>
-        <textarea maxlength="1" id="31"></textarea>
-        <textarea maxlength="1" id="32"></textarea>
-        <textarea maxlength="1" class="last" id="33"></textarea>
-
-        <textarea maxlength="1" id="34"></textarea>
-        <textarea maxlength="1" id="35"></textarea>
-        <textarea maxlength="1" id="36"></textarea>
-        <br>
-        <button id="final" onclick="finalizar()">Mandar</button>
+    <div id="posjogo" style="display: none">
+        <div id="pos-top">
+            <h1 id="vic-der">VITÓRIA</h1>
+            <h3 id="pdls">+18</h3>
+        </div>
+        <div id="pos-bot">
+            <div id="pos-buts">
+                <button  onclick="menu()">Voltar</button>
+                <button  onclick="jogarDnv()">Jogar</button>
+            </div>
+            <div id="opp">
+                <div id="perfil">
+                    <div id="perfil-top">
+                        <img id="foto" src="https://cdn.pixabay.com/photo/2016/12/07/21/01/cartoon-1890438_1280.jpg">
+                        <div id="perfil-info">
+                            <p id="nome">MarceloPlay</p>
+                            <p id="email">marcelo@gmail</p>                       
+                        </div>
+                    </div>
+                    <div id="perfil-bottom">
+                        <p class="mais" id="pos">Rank:</p>
+                        <p class="mais" id="elo">Elo:</p>
+                        <p class="mais" id="wins">Vitórias:</p>
+                        <p class="mais" id="defeats">Derrotas:</p>
+                        <p class="mais" id="besttime">Melhor tempo:</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div id="playground" style="display: flex;">
+        
+        <div id="perfil2">
+            <p id="contra">Jogando contra:</p>
+            <div id="perfil-top2">
+                <img id="foto2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfdUj0iOxWxGF8oTVodlarkBMS5GL35gYfaA&s">
+                <div id="perfil-info2">
+                    <p id="nome2">MarceloPlay</p>
+                    <p id="email2">Elo: 1560</p>                 
+                </div>
+            </div>
+        </div>
+        
+        <div class="um" id="sus" style="display:block">
+            <h2 id="timer">00.00</h2>
+
+            <textarea maxlength="1" id="1"></textarea>
+            <textarea maxlength="1" id="2"></textarea>
+            <textarea maxlength="1" class="last" id="3"></textarea>
+            
+            <textarea maxlength="1" id="4"></textarea>
+            <textarea maxlength="1" id="5"></textarea>
+            <textarea maxlength="1" id="6"></textarea>
+            <br>
+            <textarea maxlength="1" id="7"></textarea>
+            <textarea maxlength="1" id="8"></textarea>
+            <textarea maxlength="1" class="last" id="9"></textarea>
+            
+            <textarea maxlength="1" id="10"></textarea>
+            <textarea maxlength="1" id="11"></textarea>
+            <textarea maxlength="1" id="12"></textarea>
+            <br>
+            <br>
+            <textarea maxlength="1" id="13"></textarea>
+            <textarea maxlength="1" id="14"></textarea>
+            <textarea maxlength="1" class="last" id="15"></textarea>
+            
+            <textarea maxlength="1" id="16"></textarea>
+            <textarea maxlength="1" id="17"></textarea>
+            <textarea maxlength="1" id="18"></textarea>
+            <br>
+            <textarea maxlength="1" id="19"></textarea>
+            <textarea maxlength="1" id="20"></textarea>
+            <textarea maxlength="1" class="last" id="21"></textarea>
+
+            <textarea maxlength="1" id="22"></textarea>
+            <textarea maxlength="1" id="23"></textarea>
+            <textarea maxlength="1" id="24"></textarea>
+            <br>
+            <br>
+            <textarea maxlength="1" id="25"></textarea>
+            <textarea maxlength="1" id="26"></textarea>
+            <textarea maxlength="1" class="last" id="27"></textarea>
+
+            <textarea maxlength="1" id="28"></textarea>
+            <textarea maxlength="1" id="29"></textarea>
+            <textarea maxlength="1" id="30"></textarea>
+            <br>
+            <textarea maxlength="1" id="31"></textarea>
+            <textarea maxlength="1" id="32"></textarea>
+            <textarea maxlength="1" class="last" id="33"></textarea>
+
+            <textarea maxlength="1" id="34"></textarea>
+            <textarea maxlength="1" id="35"></textarea>
+            <textarea maxlength="1" id="36"></textarea>
+            <br>
+            <button id="final" onclick="finalizar()">Mandar</button>
+        </div>
+    </div>
+    
+    <a id="menu" href="menu.html"></a>
     <script src="persistent.js"></script>
     <script src="game.js"></script>  
 </body>

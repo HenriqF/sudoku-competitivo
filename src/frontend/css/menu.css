@@ -106,7 +106,7 @@ tbody tr:nth-child(odd) {
     flex-direction: column;
     gap: 0;
     width: 500px;
-    height: 250px;
+    height: 270px;
     box-sizing: border-box;
 }
 

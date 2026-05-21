@@ -1,4 +1,6 @@
+//imutaveis
 var nome_user;
+var foto_user;
 var jwt_token;
 var email;
 
@@ -10,7 +12,7 @@ const sen1 = document.getElementById("password");
 const sen2 = document.getElementById("password2");
 const sen3 = document.getElementById("password3");
 
-
+//mutaveis
 var novo_foto;
 var novo_nome;
 var novo_senha;
@@ -44,12 +46,12 @@ async function Carregardados(){
 
         const data = await response.json();
 
-        novo_foto = data.foto_link;
+        foto_user = data.foto_link;
 
         document.getElementById("username").value = nome_user;
 
-        document.getElementById("user_foto").value = novo_foto;   
-        infoFoto.src = novo_foto;
+        document.getElementById("user_foto").value = foto_user;   
+        infoFoto.src = foto_user;
 
         infoEmail.textContent = data.email;
 
@@ -73,11 +75,15 @@ function change(x){
         if(!document.getElementById("check_nome").checked){
             document.getElementById("username").style.display = "none";
             infoNome.textContent = nome_user;
+            document.getElementById("username").value = nome_user;
+            novo_nome = nome_user;
         }else document.getElementById("username").style.display = "block";
 
         if(!document.getElementById("check_foto").checked){
             document.getElementById("user_foto").style.display = "none";
-            infoNome.textContent = nome_user;
+            infoFoto.src = foto_user;
+            document.getElementById("user_foto").value = foto_user;
+            novo_foto = foto_user;
         }else document.getElementById("user_foto").style.display = "block";
 
         if(!document.getElementById("check_senha").checked){
@@ -94,10 +100,15 @@ async function validarDados(){
     if(document.getElementById("check_nome").checked && !(await validarNome())) return;
     if(document.getElementById("check_foto").checked && !validarFoto()) return;
     if(document.getElementById("check_senha").checked && !validarSenha()) return;
+    if(!document.getElementById("check_senha").checked && !document.getElementById("check_foto").checked && !document.getElementById("check_nome").checked){
+        msg.innerText = "Palhaço...";
+        return;
+        }
     if(sen3.value===""){
         msg.innerText = "Confirme com sua senha!";
         return;
     }
+    if(!(await senhaConfirmacao())) return;
 
     mudarDados();
 }
@@ -143,7 +154,7 @@ async function buscarNome(nome_buscado) {
 }
 
 function validarFoto(){
-
+    novo_foto = document.getElementById("user_foto").value;
     if(!novo_foto.startsWith("https://i.pinimg.com/")){
         msg.innerText = "URL deve começar com https://i.pinimg.com/";
         return false;
@@ -237,6 +248,32 @@ async function fazerLogin(){
 
     } catch {
         msg.innerText = "Erro ao conectar com o servidor.";
+    }
+    
+};
+
+async function senhaConfirmacao(){
+    
+    try {
+
+        const response = await fetch(`http://${host}:5269/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "nome": nome_user, "senha": sen3.value })
+        });
+
+        const data = await response.json();
+
+        if(data==="CREDINV"){
+            msg.innerText = "Senha ERRADA!";
+            return false;
+        }
+        
+        return true;
+
+    } catch(e) {
+        msg.innerText = "Erro ao conectar com o servidor." + e;
+        return false;
     }
     
 };
