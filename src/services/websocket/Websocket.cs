@@ -14,12 +14,105 @@ using Microsoft.IdentityModel.Tokens; /* eu Marcelo botei isso */
 using contracts;
 using System.Collections.Specialized;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt; /* eu MARCELO botei isso */
+using System.IdentityModel.Tokens.Jwt;
 
-
+using System.Threading.Channels;
+using System.ComponentModel.DataAnnotations; /* eu MARCELO botei isso */
 namespace Sockets.WebSocketServer;
+
+
+
+
+public class MatchMaker : BackgroundService, IHostedService
+{
+    public Action<string, string>? _onMatch {get; set;}
+
+
+    private readonly Channel<mm_player_info> _queue;
+    private List<mm_player_info> _jogadores;
+
+
+    public MatchMaker()
+    {
+        _queue = Channel.CreateUnbounded<mm_player_info>();
+        _jogadores = [];
+    }
+
+
+
+    public async ValueTask entrar_queue(mm_player_info jogador)
+    {
+        await _queue.Writer.WriteAsync(jogador);
+    }
+
+
+    private async Task match_make(CancellationToken c)
+    {
+        //
+        foreach (mm_player_info j in _jogadores)
+        {
+            int diff = (int)(DateTime.Now - j.entrada).TotalMilliseconds;
+            j.range = ((diff / 15000) * 100) + 200;
+
+            Console.WriteLine($"JOGADOR NA QUEUE MEU DUS OMG {j.nome}, {diff}, {j.range}");
+            _onMatch?.Invoke(j.nome, j.nome+"wow");
+        } 
+
+        
+    }
+
+
+
+
+    protected override async Task ExecuteAsync(CancellationToken cancelar)
+    {   
+        while (!cancelar.IsCancellationRequested)
+        {
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancelar);
+            cts.CancelAfter(TimeSpan.FromSeconds(3));
+            try
+            {
+                if (await _queue.Reader.WaitToReadAsync(cts.Token))
+                {
+                    
+                    while (_queue.Reader.TryRead(out mm_player_info? jog))
+                    {
+                        if (jog == null)continue;
+                        lock (_jogadores)
+                        {
+                            _jogadores.Add(jog);
+                        }
+                    }
+                    await match_make(cancelar);
+                }
+
+
+            }
+            catch (OperationCanceledException)
+            {
+                if (cancelar.IsCancellationRequested) break;
+
+                Console.WriteLine("mm ping");
+                if (_jogadores.Count > 0) {
+                    await match_make(cancelar);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"MM: deu grandes merdas {e}");
+            }
+        }
+    }
+}
+
+
+
+
 public class WebSocketServer
 {
+    
+    private static MatchMaker mm = null!;
+
     //variaveis    
     private static ConcurrentDictionary<string, WebSocket> _clients_sockets = new(); //playre weebsocket
     private static ConcurrentDictionary<string, user_stats> _clients_stats = new(); //player stats ()
@@ -39,6 +132,12 @@ public class WebSocketServer
         _playing_clients_start.TryRemove(id, out _);
         _playing_clients_boards.TryRemove(id, out _);
         _playing_opponent.TryRemove(id, out _);
+    }
+
+    private static async void MatchFound(string p1, string p2)
+    {
+        Console.WriteLine($"PITCH!! {p1} {p2}");
+        await MessageClientAsync("seu porra", _clients_sockets[p1]);
     }
 
 
@@ -192,8 +291,18 @@ public class WebSocketServer
 
             else if (message.StartsWith("jogar") && message.Length == 5)
             {
-                string player_name = id;
-                FindMatch(player_name, id, webSocket);
+                
+                mm_player_info nj = new mm_player_info(
+                    nome: id,
+                    elo: _clients_stats[id].elo,
+                    range:50,
+                    entrada: DateTime.Now
+                );
+
+                await mm.entrar_queue(nj);
+
+                //string player_name = id;
+                //FindMatch(player_name, id, webSocket);
             }
 
 
@@ -209,6 +318,7 @@ public class WebSocketServer
 
 
 
+
     public static void Main(string[] args)
     {
         Console.WriteLine("===================");
@@ -221,9 +331,16 @@ public class WebSocketServer
         {
             opts.ShutdownTimeout = TimeSpan.FromSeconds(1);
         });
-
+        builder.Services.AddSingleton<MatchMaker>();
+        builder.Services.AddHostedService(servp => servp.GetRequiredService<MatchMaker>());
         var app = builder.Build();
+
+        mm = app.Services.GetRequiredService<MatchMaker>();
+        mm._onMatch = MatchFound;
+        
         app.UseWebSockets();
+
+
 
         app.Map("/ws/{token}", async context =>
         {
@@ -297,3 +414,21 @@ public class WebSocketServer
         app.Run();
     }
 }
+
+
+
+
+public record mm_player_info{
+    public string nome { get; set; }
+    public int elo { get; set; }
+    public int range { get; set; }
+    public DateTime entrada { get; set; }
+
+    public mm_player_info(string nome, int elo, int range, DateTime entrada)
+    {
+        this.nome = nome;
+        this.elo = elo;
+        this.range = range;
+        this.entrada = entrada;        
+    }
+};
