@@ -185,8 +185,11 @@ public class WebSocketServer
         _playing_opponent.TryAdd(p1, p2);
         _playing_opponent.TryAdd(p2, p1);
 
-        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p1]);
-        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p2]);
+        await MessageClientAsync($"opp: {p2}", _clients_sockets[p1]);
+        await MessageClientAsync($"opp: {p1}", _clients_sockets[p2]);
+
+        await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p1]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p2]);
 
         DateTime inicio = DateTime.Now;
         _playing_clients_start.TryAdd(p1, inicio);
@@ -281,7 +284,7 @@ public class WebSocketServer
                 }
                 else
                 {
-                    await MessageClientAsync("echo:" + message , webSocket);
+                    await MessageClientAsync($"echo: {message}" , webSocket);
                 }
             }
 
@@ -297,15 +300,14 @@ public class WebSocketServer
                 );
 
                 await mm.entrar_queue(nj);
+                await MessageClientAsync("procurando por oponente..." , webSocket);
 
-                //string player_name = id;
-                //FindMatch(player_name, id, webSocket);
             }
 
 
             else
             {
-                await MessageClientAsync("echo:" + message , webSocket);
+                await MessageClientAsync($"echo: {message}" , webSocket);
             }
 
 
@@ -375,7 +377,7 @@ public class WebSocketServer
             if (_playing_clients_boards.TryGetValue(client_id, out var boards))
             {   
                 Console.WriteLine($"CLIENTE JGOANDO VOLTOU MEU DEUS É CALASEWING! {client_id}");
-                await MessageClientAsync("sudoku:" + boards[1], web_socket);
+                await MessageClientAsync($"sudoku: {boards[1]}", web_socket);
             }
 
 

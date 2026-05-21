@@ -265,8 +265,13 @@ app.MapGet("/jwtvalido/{tok}", (string tok) => {
 });
 
 
-ConcurrentDictionary<string, (DateTime, string)> solicitacoes = new();
-ConcurrentDictionary<string, string> solicitando = new();
+
+
+
+ConcurrentDictionary<string, (DateTime, string)> solicitacoes = new(); //token, (data, nome)
+ConcurrentDictionary<string, string> solicitando = new();              //nome, token
+
+
 
 app.MapGet("/jogartoken/{nome}", (HttpContext cont, string nome) =>
 {   
@@ -285,43 +290,61 @@ app.MapGet("/jogartoken/{nome}", (HttpContext cont, string nome) =>
     
     if (nome_jwt != nome) return Results.Unauthorized();
 
-    if (solicitando.ContainsKey(nome))
-    {
-        if (solicitacoes.TryGetValue(solicitando[nome], out (DateTime, string) info))
-        {
-            if (info.Item1 <= DateTime.Now)
-            {
-                solicitacoes.TryRemove(solicitando[nome], out _);
-                solicitando.TryRemove(info.Item2, out _);
-            }
-        }
-
-        return Results.Conflict("já solicitado");
-    }
     if (solicitacoes.Count > 5000)
     {
-        return Results.StatusCode(503);
+        foreach (KeyValuePair<string, (DateTime, string)> info in solicitacoes)
+        {
+            if (info.Value.Item1 <= DateTime.Now)
+            {
+                solicitacoes.TryRemove(info.Key, out _);
+                solicitando.TryRemove(info.Value.Item2, out _);
+            }
+        }
+       // return Results.StatusCode(503);
     }
+
 
     string a_token = Guid.NewGuid().ToString("N");
 
-    solicitacoes.TryAdd(a_token, (DateTime.Now.AddSeconds(10), nome));
-    solicitando.TryAdd(nome, a_token);
 
-    return Results.Ok(a_token);
+    if (solicitando.TryAdd(nome, a_token))
+    {
+        solicitacoes.TryAdd(a_token, (DateTime.Now.AddSeconds(5), nome));
+        return Results.Ok(a_token);
+    }
+
+
+    if (solicitando.TryGetValue(nome, out string? to))
+    {
+        if (solicitacoes.TryGetValue(to, out (DateTime, string) info))
+        {
+            if (info.Item1 <= DateTime.Now)
+            {
+                solicitacoes.TryRemove(to, out _);
+                solicitando.TryRemove(info.Item2, out _);
+
+                if (solicitando.TryAdd(nome, a_token))
+                {
+                    solicitacoes.TryAdd(a_token, (DateTime.Now.AddSeconds(5), nome));
+                    return Results.Ok(a_token);
+                }
+            }
+        }
+
+    }
+    return Results.Conflict("já solicitado");
 });
+
 
 app.MapGet("/confirmar/{token}", (string token) =>
 {
     if (solicitacoes.TryGetValue(token, out (DateTime, string) info))
     {
-        if (info.Item1 >= DateTime.Now)
-        {
-            solicitacoes.TryRemove(token, out _);
-            solicitando.TryRemove(info.Item2, out _);
-            return Results.Ok(info.Item2);
-        }
 
+        solicitacoes.TryRemove(token, out _);
+        solicitando.TryRemove(info.Item2, out _);
+
+        if (info.Item1 >= DateTime.Now) return Results.Ok(info.Item2);
         return Results.Unauthorized();
     }
     else
