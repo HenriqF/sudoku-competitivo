@@ -204,7 +204,7 @@ public class WebSocketServer
         }
         await MessageClientAsync($"opp: {p2}", _clients_sockets[p1]);
         await MessageClientAsync($"opp: {p1}", _clients_sockets[p2]);
-        await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p1]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[0]}", _clients_sockets[p1]);
         await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p2]);
 
 
@@ -283,7 +283,6 @@ public class WebSocketServer
     }
 
 
-
     private static async Task HandleClientAsync(string id, WebSocket webSocket)
     {
         var buffer = new byte[1024];
@@ -311,6 +310,16 @@ public class WebSocketServer
                 }
                 else if (!message.StartsWith("jogar"))
                 {
+                    if (_playing_client_info[id].strikes == 2)
+                    {
+                        await MatchEnd(_playing_client_info[id].opp, id);
+                    }
+                    else
+                    {
+                        _playing_client_info[id].strikes += 1;
+                        await MessageClientAsync($"strike: {_playing_client_info[id].strikes}" , webSocket); 
+                    }
+                    
                 }
                 await MessageClientAsync($"echo: {message}" , webSocket);
             }
