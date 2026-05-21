@@ -143,25 +143,20 @@ public class MatchMaker : BackgroundService, IHostedService
 
 public class WebSocketServer
 {
-    
     private static MatchMaker mm = null!;
 
     //variaveis    
     private static ConcurrentDictionary<string, WebSocket> _clients_sockets = new(); //playre weebsocket
     private static ConcurrentDictionary<string, user_stats> _clients_stats = new(); //player stats ()
 
-    private static ConcurrentDictionary<string, string[]> _playing_clients_boards = new();  //player, sudoku_board
-    private static ConcurrentDictionary<string, DateTime> _playing_clients_start = new();  //player, tempo_inicio
-    private static ConcurrentDictionary<string, string> _playing_opponent = new(); //player opp
 
+    private static ConcurrentDictionary<string, pc_info> _playing_client_info = new();
     //-------
 
 
     private static void RemovePlayingClient(string id)
     {   
-        _playing_clients_start.TryRemove(id, out _);
-        _playing_clients_boards.TryRemove(id, out _);
-        _playing_opponent.TryRemove(id, out _);
+        _playing_client_info.TryRemove(id, out _);
     }
 
     private static async Task MessageClientAsync(string message, WebSocket webSocket)
@@ -207,22 +202,25 @@ public class WebSocketServer
             await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[p2]);
             return;
         }
-
-        _playing_clients_boards.TryAdd(p1, sudoku.boards);
-        _playing_clients_boards.TryAdd(p2, sudoku.boards);
-
-        _playing_opponent.TryAdd(p1, p2);
-        _playing_opponent.TryAdd(p2, p1);
-
         await MessageClientAsync($"opp: {p2}", _clients_sockets[p1]);
         await MessageClientAsync($"opp: {p1}", _clients_sockets[p2]);
-
         await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p1]);
         await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p2]);
 
-        DateTime inicio = DateTime.Now;
-        _playing_clients_start.TryAdd(p1, inicio);
-        _playing_clients_start.TryAdd(p2, inicio);
+
+        DateTime inicio_jogo = DateTime.Now;
+
+        _playing_client_info.TryAdd(p1, new pc_info(
+            boards: sudoku.boards,
+            opp: p2,
+            inicio: inicio_jogo
+        ));
+        _playing_client_info.TryAdd(p2, new pc_info(
+            boards: sudoku.boards,
+            opp: p1,
+            inicio: inicio_jogo
+        ));
+
 
         Console.WriteLine($"{p1} vs {p2} - tabuleiros: {sudoku.boards[0]}, {sudoku.boards[1]}");
     }
@@ -230,7 +228,7 @@ public class WebSocketServer
     private static async Task MatchEnd(string gan, string perd)//gangnamstyle
     {
         DateTime fim = DateTime.Now;
-        TimeSpan duracao = fim - _playing_clients_start[gan];
+        TimeSpan duracao = fim - _playing_client_info[gan].inicio;
         int dur_total_ms = (int) duracao.TotalMilliseconds;
 
 
@@ -254,7 +252,7 @@ public class WebSocketServer
         int new_elo_w = winner_elo + elo_diff_w;
         int new_elo_l = loser_elo + elo_diff_l;
 
-        string boards = _playing_clients_boards[gan][0] + _playing_clients_boards[gan][1]; 
+        string boards = _playing_client_info[gan].boards[0] + _playing_client_info[gan].boards[1]; 
 
 
         fim_partida fp = new fim_partida(
@@ -300,16 +298,16 @@ public class WebSocketServer
             Console.WriteLine($"{id}: {message}");
 
 
-            if (_playing_clients_boards.ContainsKey(id))
+            if (_playing_client_info.ContainsKey(id))
             {
-                if (message == _playing_clients_boards[id][1])
+                if (message == _playing_client_info[id].boards[1])
                 {
-                    await MatchEnd(id, _playing_opponent[id]);
+                    await MatchEnd(id, _playing_client_info[id].opp);
                 }
                 
                 else if (message.StartsWith("abandonar"))
                 {
-                    await MatchEnd(_playing_opponent[id], id);
+                    await MatchEnd(_playing_client_info[id].opp, id);
                 }
                 else if (!message.StartsWith("jogar"))
                 {
@@ -403,11 +401,11 @@ public class WebSocketServer
             }
 
 
-            if (_playing_clients_boards.TryGetValue(client_id, out var boards))
+            if (_playing_client_info.TryGetValue(client_id, out pc_info? info))
             {   
                 Console.WriteLine($"CLIENTE JGOANDO VOLTOU MEU DEUS É CALASEWING! {client_id}");
-                await MessageClientAsync($"sudoku: {boards[1]}", web_socket);
-                await MessageClientAsync($"tempopassado: {(int)(DateTime.Now - _playing_clients_start[client_id]).TotalMilliseconds}", web_socket);
+                await MessageClientAsync($"sudoku: {info.boards[1]}", web_socket);
+                await MessageClientAsync($"tempopassado: {(int)(DateTime.Now - info.inicio).TotalMilliseconds}", web_socket);
             }
 
 
@@ -449,6 +447,23 @@ public class WebSocketServer
 
 
 
+
+public record pc_info
+{
+    public string[] boards {get; set;}
+    public string opp {get; set;}
+    public DateTime inicio {get; set;}
+
+    public int strikes {get; set;}
+
+    public pc_info(string[] boards, string opp, DateTime inicio)
+    {
+        this.boards = boards;
+        this.opp = opp;
+        this.inicio = inicio;
+        strikes = 0;
+    }
+}
 
 public record mm_player_info{
     public string nome { get; set; }
