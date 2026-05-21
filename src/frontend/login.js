@@ -15,7 +15,7 @@ function trocar(){
 };
 
 async function fazerLogin(){
-    if(!validarLogin()){
+    if(!(await  validarLogin())){
         return;
     }
     

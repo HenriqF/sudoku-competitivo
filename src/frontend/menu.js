@@ -5,6 +5,7 @@ const infoPos = document.getElementById("pos");
 const infoElo = document.getElementById("elo");
 const infoWins = document.getElementById("wins");
 const infoDefeats = document.getElementById("defeats");
+const infoMelhorTempo = document.getElementById("besttime");
 
 var nome_user;
 var jwt_token;
@@ -82,6 +83,7 @@ async function Carregardados(){
         infoElo.textContent = `Elo: ${data.elo}`;
         infoWins.textContent = `Vitórias: ${data.vitorias}`;
         infoDefeats.textContent = `Derrotas: ${data.partidas - data.vitorias}`;
+        infoMelhorTempo.textContent = `Melhor tempo: ${data.melhor_tempo}`;
 
 
     } catch (error) {
