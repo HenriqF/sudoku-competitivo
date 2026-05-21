@@ -17,7 +17,8 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
 using System.Threading.Channels;
-using System.ComponentModel.DataAnnotations; /* eu MARCELO botei isso */
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Headers; /* eu MARCELO botei isso */
 namespace Sockets.WebSocketServer;
 
 
@@ -46,19 +47,37 @@ public class MatchMaker : BackgroundService, IHostedService
     }
 
 
-    private async Task match_make(CancellationToken c)
+    private async Task<bool> match_make(CancellationToken c)
     {
         //
         foreach (mm_player_info j in _jogadores)
         {
             int diff = (int)(DateTime.Now - j.entrada).TotalMilliseconds;
-            j.range = ((diff / 15000) * 100) + 200;
-
-            Console.WriteLine($"JOGADOR NA QUEUE MEU DUS OMG {j.nome}, {diff}, {j.range}");
-            _onMatch?.Invoke(j.nome, j.nome+"wow");
+            j.range = ((diff / 3000) * 100) + 200;
+            Console.WriteLine($"JOGADOR NA QUEUE MEU DUS OMG {j.nome}, {diff}, {j.range}, {j.elo}");
         } 
 
-        
+
+        for (int i = 0 ;i < _jogadores.Count; i++)
+        {
+            mm_player_info jog = _jogadores[i];
+
+            mm_player_info? match = _jogadores.Where(j => 
+                j != jog && 
+                Math.Abs(j.elo - jog.elo) <= j.range &&
+                Math.Abs(j.elo - jog.elo) <= jog.range 
+            ).MinBy(j => j.entrada);
+
+            if (match != null)
+            {
+                _jogadores.Remove(jog);
+                _jogadores.Remove(match);
+
+                _onMatch?.Invoke(jog.nome, match.nome);
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -83,7 +102,10 @@ public class MatchMaker : BackgroundService, IHostedService
                             _jogadores.Add(jog);
                         }
                     }
-                    await match_make(cancelar);
+
+
+
+                    while(await match_make(cancelar));
                 }
 
 
@@ -136,9 +158,35 @@ public class WebSocketServer
 
     private static async void MatchFound(string p1, string p2)
     {
-        Console.WriteLine($"PITCH!! {p1} {p2}");
-        await MessageClientAsync("seu porra", _clients_sockets[p1]);
+        var client = new HttpClient();
+        new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>(
+            "http://localhost:5121/new"
+        );
+
+        if (sudoku == null)
+        {
+            await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[p1]);
+            await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[p2]);
+            return;
+        }
+
+        _playing_clients_boards.TryAdd(p1, sudoku.boards);
+        _playing_clients_boards.TryAdd(p2, sudoku.boards);
+
+        _playing_opponent.TryAdd(p1, p2);
+        _playing_opponent.TryAdd(p2, p1);
+
+        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p1]);
+        await MessageClientAsync("sudoku:" + sudoku.boards[1], _clients_sockets[p2]);
+
+        DateTime inicio = DateTime.Now;
+        _playing_clients_start.TryAdd(p1, inicio);
+        _playing_clients_start.TryAdd(p2, inicio);
+
+        Console.WriteLine($"TABULEIROS: {sudoku.boards[0]}, {sudoku.boards[1]}");
     }
+
+
 
 
     private static async void FindMatch(string player_name, string id, WebSocket webSocket)
@@ -198,6 +246,8 @@ public class WebSocketServer
             return;
         }
     }
+
+
 
 
     private static async Task MessageClientAsync(string message, WebSocket webSocket)
