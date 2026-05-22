@@ -202,9 +202,9 @@ public class Interface
         {
             try
             {
-                if (! VerificarNome(data.nome))return Results.NotFound("CREDINV");
-                if (! VerificarNome(data.email))return Results.NotFound("CREDINV");
-                if (! VerificarSenha(data.senha))return Results.NotFound("CREDINV");
+                if (! VerificarNome(data.nome))return Results.NotFound("NOMECREDINV");
+                if (! VerificarMail(data.email))return Results.NotFound("EMAILCREDINV");
+                if (! VerificarSenha(data.senha))return Results.NotFound("SENHACREDINV");
 
                 var client = new HttpClient();  
                 user_private_info? dados = await client.GetFromJsonAsync<user_private_info>(
