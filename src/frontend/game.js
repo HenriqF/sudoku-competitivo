@@ -15,21 +15,38 @@ if(localStorage.getItem("tok")!==null){
             document.getElementById("searching").style.display = "none";
             document.getElementById("posjogo").style.display = "none";
             document.getElementById("playground").style.display = "flex";
-            jogando(message);
+            let match_info = message.split(' ');
+            jogando(match_info[1], match_info[2]);
+
+        }
+
+        if(message.startsWith("opp: ")){
+            let op_info = message.split(' ');
+            document.getElementById("nome2").textContent = op_info[1];
+            document.getElementById("email2").textContent = `Elo: ${op_info[2]}`;
+            document.getElementById("foto2").src = op_info[3];
+        }
+
+        if(message.startsWith("strike: ")){
+
         }
 
         if(message.startsWith("ganhou:")){
             timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
-            ganhador(message.substring(8));
+            let pos_info = message.split(' ');
+            nome = pos_info[2];
+            ganhador(pos_info[1]);
         }  
             
         if(message.startsWith("perdeu:")){
             timer();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
-            perdedor(message.substring(8));
+            let pos_info = message.split(' ');
+            nome = pos_info[2];
+            perdedor(pos_info[1]);
         }
 
         if(message.startsWith("procurando por oponente...")){
@@ -59,9 +76,9 @@ if(localStorage.getItem("tok")!==null){
         sock.send(input.value);
     });
 
-    function jogando(sudoku){
-        timer();
-        for(let i=1, j=8; j<sudoku.length;i++, j++){
+    function jogando(sudoku ,tempo_passado){
+        timer(tempo_passado);
+        for(let i=1, j=0; j<sudoku.length;i++, j++){
             if(sudoku[j]!='_'){
                 document.getElementById(`${i}`).value = sudoku[j]
                 document.getElementById(`${i}`).disabled = true
@@ -90,7 +107,7 @@ let csecs;
 let secs;
 let min;
 
-function timer() {
+function timer(tempo_passado) {
     
     if (isRunning) {
         clearInterval(timerInterval);
@@ -100,7 +117,7 @@ function timer() {
 
     isRunning = true;
 
-    const startTime = Date.now();
+    const startTime = Date.now() - tempo_passado;
     const timerElement = document.getElementById("timer");
 
     timerInterval = setInterval(() => {
@@ -148,15 +165,15 @@ const infoWins = document.getElementById("wins");
 const infoDefeats = document.getElementById("defeats");
 const infoMelhorTempo = document.getElementById("besttime");
 
+let nome;
+
 async function Carregardados(){
     try {
-        let nome = localStorage.getItem("user")
-
         const response = await fetch(`https://${host}:7185/stats/${nome}`);
 
         const data = await response.json();
 
-        infoNome.textContent = localStorage.getItem("user");
+        infoNome.textContent = nome;
         infoEmail.textContent = data.email;
         infoFoto.src = data.foto_link;
         infoPos.textContent = `Rank: ${data.pos_global}`;
