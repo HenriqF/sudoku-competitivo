@@ -50,5 +50,6 @@ public record fim_partida (
     int elo_diff_ganhador,
     int elo_diff_perdedor,
 
-    int duracao_ms
+    int duracao_ms,
+    bool abandonou
 );
