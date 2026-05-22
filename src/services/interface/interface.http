@@ -38,3 +38,14 @@ GET https://localhost:7185/jogartoken/pedro
 
 ###
 GET https://localhost:7185/confirmar/ae0acf1309ba4adc9980ae40941aa39a
+
+
+###
+POST http://localhost:5269/login
+Content-Type: application/json
+
+{
+  "nome": "daniel",
+  "senha": "12344"
+}
+

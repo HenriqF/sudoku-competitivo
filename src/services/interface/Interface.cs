@@ -132,10 +132,8 @@ app.MapPost("/login", async (Login data) =>
             $"http://localhost:5127/find/{data.nome}"
         );
 
-        if (dados == null)
-        {
-            return Results.NotFound("CREDINV");
-        }
+        if (dados == null) return Results.NotFound("CREDINV");
+        if (dados.nome != data.nome) return Results.NotFound("CREDINV");
 
         byte[] senhaHash = Convert.FromBase64String(dados.hash);
         byte[] senhaSalt = Convert.FromBase64String(dados.salt);

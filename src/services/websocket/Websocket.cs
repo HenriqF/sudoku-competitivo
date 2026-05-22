@@ -202,10 +202,10 @@ public class WebSocketServer
             await MessageClientAsync("falha ao gerar sudokus...", _clients_sockets[p2]);
             return;
         }
-        await MessageClientAsync($"opp: {p2}", _clients_sockets[p1]);
-        await MessageClientAsync($"opp: {p1}", _clients_sockets[p2]);
-        await MessageClientAsync($"sudoku: {sudoku.boards[0]}", _clients_sockets[p1]);
-        await MessageClientAsync($"sudoku: {sudoku.boards[1]}", _clients_sockets[p2]);
+        await MessageClientAsync($"opp: {p2} {_clients_stats[p2].elo} {_clients_stats[p2].foto_link}", _clients_sockets[p1]);
+        await MessageClientAsync($"opp: {p1} {_clients_stats[p1].elo} {_clients_stats[p1].foto_link}", _clients_sockets[p2]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[0]} 0", _clients_sockets[p1]);
+        await MessageClientAsync($"sudoku: {sudoku.boards[1]} 0", _clients_sockets[p2]);
 
 
         DateTime inicio_jogo = DateTime.Now;
@@ -272,8 +272,8 @@ public class WebSocketServer
         _clients_sockets.TryGetValue(gan, out WebSocket? ganws);
 
 
-        if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l}" , lws);
-        if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w}" , ganws);
+        if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l} {_playing_client_info[gan].opp}" , lws);
+        if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w} {_playing_client_info[perd].opp}" , ganws);
 
         await UpdateStats(gan);
         await UpdateStats(perd);
@@ -413,8 +413,10 @@ public class WebSocketServer
             if (_playing_client_info.TryGetValue(client_id, out pc_info? info))
             {   
                 Console.WriteLine($"CLIENTE JGOANDO VOLTOU MEU DEUS É CALASEWING! {client_id}");
-                await MessageClientAsync($"sudoku: {info.boards[1]}", web_socket);
-                await MessageClientAsync($"tempopassado: {(int)(DateTime.Now - info.inicio).TotalMilliseconds}", web_socket);
+                await MessageClientAsync($"sudoku: {info.boards[1]} {(int)(DateTime.Now - info.inicio).TotalMilliseconds}", web_socket);
+                var oponente = _playing_client_info[client_id].opp;
+                await MessageClientAsync($"opp: {oponente} {_clients_stats[oponente].elo} {_clients_stats[oponente].foto_link}", web_socket);
+                //await MessageClientAsync($"tempopassado: {(int)(DateTime.Now - info.inicio).TotalMilliseconds}", web_socket);
             }
 
 
