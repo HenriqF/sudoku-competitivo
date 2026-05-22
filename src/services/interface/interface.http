@@ -49,3 +49,14 @@ Content-Type: application/json
   "senha": "12344"
 }
 
+
+
+###
+POST http://localhost:5269/deletarconta
+Content-Type: application/json
+
+{
+  "nome": "dewey",
+  "senha": "12344"
+}
+

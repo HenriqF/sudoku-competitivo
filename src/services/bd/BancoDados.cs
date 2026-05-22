@@ -97,8 +97,8 @@ public class AppDbContext : DbContext
             part.ToTable("partidas");
             part.HasKey(p => p.id);
 
-            part.HasOne(p => p.UserGanhador).WithMany(u => u.JogosUserGanhador).HasForeignKey(p => p.user_ganhador).OnDelete(DeleteBehavior.Restrict);
-            part.HasOne(p => p.UserDerrotado).WithMany(u => u.JogosUserDerrotado).HasForeignKey(p => p.user_derrotado).OnDelete(DeleteBehavior.Restrict);
+            part.HasOne(p => p.UserGanhador).WithMany(u => u.JogosUserGanhador).HasForeignKey(p => p.user_ganhador).OnDelete(DeleteBehavior.SetNull);
+            part.HasOne(p => p.UserDerrotado).WithMany(u => u.JogosUserDerrotado).HasForeignKey(p => p.user_derrotado).OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
@@ -115,7 +115,7 @@ public class Program
         {
             (string, int, string)[]? tp = await cont.usuarios.Join(cont.sudoku_stats, u => u.id, s => s.user_id, (u, s) => new { u.nome, s.user_elo, u.foto_link })
                                         .OrderByDescending(i => i.user_elo)
-                                        .Take(100)
+                                        .Take(2)
                                         .Select(i => ValueTuple.Create(i.nome!, i.user_elo, i.foto_link!))
                                         .ToArrayAsync();
 
@@ -215,6 +215,20 @@ public class Program
         cont.SaveChanges();
         return true;
     }
+
+    static async Task<bool> deletar_user(AppDbContext cont, string nome)
+    {
+        Usuario? user = await cont.usuarios.FirstOrDefaultAsync(u => u.nome == nome);
+
+        if (user != null)
+        {
+            cont.usuarios.Remove(user);
+            cont.SaveChanges();
+        }
+
+        return true;
+    }
+
 
     static async Task<Usuario?> find_user(AppDbContext cont, string nome)
     {
@@ -412,6 +426,12 @@ public class Program
             return Results.Ok("ok!");
         });
 
+        app.MapDelete("/deletar/{nome}", async (AppDbContext cont, string nome) =>
+        {
+            await deletar_user(cont, nome);
+            return Results.Ok("deletado");
+        });
+            
         app.MapPut("/trocardados/", async (AppDbContext cont, change_user_info cui) => {
             bool r = await trocar_user_dados(cont, cui);
 
