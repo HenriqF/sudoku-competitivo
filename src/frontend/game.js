@@ -1,4 +1,9 @@
-
+const click_sound = new Audio("sons/click.mp3");
+const strike1 = new Audio("sons/strike1.mp3");
+const strike2 = new Audio("sons/strike2.mp3");
+const perdeu = new Audio("sons/morte.mp3");
+const ganhou = new Audio("sons/victory.mp3");
+const comecou = new Audio("sons/countdown.mp3")
 
 if(localStorage.getItem("tok")!==null){
 
@@ -10,6 +15,12 @@ if(localStorage.getItem("tok")!==null){
 
     sock.onmessage = (event) => {
         let message = event.data.toString();
+
+        if(message.startsWith("timer")){
+            comecou.pause();
+            comecou.currentTime = 0;
+            comecou.play();
+        }
 
         if(message.startsWith("sudoku:")){
             document.getElementById("searching").style.display = "none";
@@ -28,11 +39,20 @@ if(localStorage.getItem("tok")!==null){
         }
 
         if(message.startsWith("strike: ")){
+            if(message.substring(8)==1){strike1.play()}
+            if(message.substring(8)==2){
+                strike1.pause();
+                strike1.currentTime = 0;
+                strike2.play();
+            }
             shake(message.substring(8));
         }
 
         if(message.startsWith("ganhou:")){
             timer();
+            ganhou.pause();
+            ganhou.currentTime = 0;
+            ganhou.play();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
             let pos_info = message.split(' ');
@@ -40,9 +60,14 @@ if(localStorage.getItem("tok")!==null){
             ganhador(pos_info[1]);
             document.getElementById("tempo").textContent = csTOtimer(pos_info[3].substring(0,pos_info[3].length-1));
         }  
-            
+
         if(message.startsWith("perdeu:")){
             timer();
+            strike2.pause();
+            strike2.currentTime = 0;
+            perdeu.pause();
+            perdeu.currentTime = 0;
+            perdeu.play();
             document.getElementById("playground").style.display="none";
             document.getElementById("posjogo").style.display = "flex";
             let pos_info = message.split(' ');
@@ -93,14 +118,28 @@ if(localStorage.getItem("tok")!==null){
     }
 
     function finalizar(){
-        let out = ""
+        let out = "";
+
         for(let i=1; i<37;i++){
-            out += `${document.getElementById(`${i}`).value}`
+            out += `${document.getElementById(`${i}`).value}`;
         }
-        sock.send(out)
+
+        sock.send(out);
     }
 
-    function jogarDnv(){sock.send("jogar")}
+    function jogarDnv(){
+        sock.send("jogar");
+        click_sound.pause();
+        click_sound.currentTime = 0;
+        click_sound.play();
+    }
+
+    function desistir(){
+        sock.send("abandonar")
+        click_sound.pause();
+        click_sound.currentTime = 0;
+        click_sound.play();
+    }
 }
 
 let timerInterval;
@@ -207,7 +246,12 @@ async function Carregardados(){
 
 perdedor(20);
 
-function menu() {document.getElementById("menu").click();}
+function menu() {
+    document.getElementById("menu").click();
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+}
 
 let txtStrikes;
 
@@ -227,3 +271,4 @@ function shake(erros){
         document.getElementById("strikes").style.color = "white";
     }, 5000);
 }
+
