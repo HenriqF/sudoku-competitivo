@@ -182,6 +182,43 @@ app.MapPost("/cadastro", async (Cadastro data) =>
 
 }).WithName("Cadastro");
 
+app.MapPost("/deletarconta", async (Login data) =>
+{   
+    try
+    {
+        var client = new HttpClient();  
+        user_private_info? dados = await client.GetFromJsonAsync<user_private_info>(
+            $"http://localhost:5127/find/{data.nome}"
+        );
+
+        if (dados == null) return Results.NotFound("CREDINV");
+        if (dados.nome != data.nome) return Results.NotFound("CREDINV");
+
+        byte[] senhaHash = Convert.FromBase64String(dados.hash);
+        byte[] senhaSalt = Convert.FromBase64String(dados.salt);
+
+        using var hmac = new HMACSHA512(senhaSalt);
+        var ComputeHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(data.senha));
+
+        if (!ComputeHash.SequenceEqual(senhaHash))
+        {
+            return Results.NotFound("CREDINV");
+        }
+
+        await client.DeleteAsync($"http://localhost:5127/deletar/{data.nome}");
+
+
+        return Results.Ok( "conta deletada" );
+
+    }
+    catch
+    {
+        return Results.NotFound("CREDINV");
+    }
+
+}).WithName("DelConta");
+
+
 
 app.MapPost("/mudarinfo", async (HttpContext cont, change_user_info data) => {
     string? header = cont.Request.Headers["Authorization"];

@@ -204,6 +204,9 @@ public class WebSocketServer
         }
         await MessageClientAsync($"opp: {p2} {_clients_stats[p2].elo} {_clients_stats[p2].foto_link}", _clients_sockets[p1]);
         await MessageClientAsync($"opp: {p1} {_clients_stats[p1].elo} {_clients_stats[p1].foto_link}", _clients_sockets[p2]);
+        await MessageClientAsync($"timer:", _clients_sockets[p1]);
+        await MessageClientAsync($"timer:", _clients_sockets[p2]);
+        await Task.Delay(3000);
         await MessageClientAsync($"sudoku: {sudoku.boards[0]} 0", _clients_sockets[p1]);
         await MessageClientAsync($"sudoku: {sudoku.boards[1]} 0", _clients_sockets[p2]);
 

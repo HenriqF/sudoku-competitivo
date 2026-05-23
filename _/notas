@@ -5,7 +5,6 @@ requisitos:
     Planejamento de atividades - Apresentar as evidências quanto ao planejamento da execução com cronograma e divisão de tarefas.
     Diagramas - Diagramas de Casos de Uso, Diagrama de Classes, Diagrama de Entidade-Relacionamento, Diagrama de Sequência, etc.
 
-    Api para servir front end de login - com autenticação segura e armazenamento de credenciais adequado;
     APIs para servirem de CRUD completo (Create, Read, Update e Delete) para as principais entidades do sistema;
     
 
@@ -21,3 +20,15 @@ completos:
 
 dotnet sln add services/s/s.csproj
 dotnet add services/s/s.csproj reference contracts/contracts.csproj
+
+
+
+
+
+
+
+
+A fazer:
+    Deleção de contas?
+    Modo zen
+    Sistema de reportar?????
