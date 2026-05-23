@@ -115,7 +115,7 @@ public class Program
         {
             (string, int, string)[]? tp = await cont.usuarios.Join(cont.sudoku_stats, u => u.id, s => s.user_id, (u, s) => new { u.nome, s.user_elo, u.foto_link })
                                         .OrderByDescending(i => i.user_elo)
-                                        .Take(2)
+                                        .Take(100)
                                         .Select(i => ValueTuple.Create(i.nome!, i.user_elo, i.foto_link!))
                                         .ToArrayAsync();
 
@@ -417,8 +417,8 @@ public class Program
 
 
         app.MapPut("/fimpartida", async (AppDbContext cont, fim_partida fp) =>
-        {
-            await updt_user_melhor_tempo(cont, fp.ganhador, fp.duracao_ms);
+        {   
+            if (!fp.abandonou) await updt_user_melhor_tempo(cont, fp.ganhador, fp.duracao_ms);
             await trocar_user_elo(cont, fp.ganhador, fp.elo_diff_ganhador);
             await trocar_user_elo(cont, fp.perdedor, fp.elo_diff_perdedor);
             await nova_partida(cont, fp.ganhador, fp.perdedor, fp.tabuleiros, fp.duracao_ms);
