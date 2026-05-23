@@ -18,7 +18,8 @@ using System.IdentityModel.Tokens.Jwt;
 
 using System.Threading.Channels;
 using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Headers; /* eu MARCELO botei isso */
+using System.Net.Http.Headers;
+using System.Runtime.CompilerServices; /* eu MARCELO botei isso */
 namespace Sockets.WebSocketServer;
 
 
@@ -228,7 +229,7 @@ public class WebSocketServer
         Console.WriteLine($"{p1} vs {p2} - tabuleiros: {sudoku.boards[0]}, {sudoku.boards[1]}");
     }
 
-    private static async Task MatchEnd(string gan, string perd)//gangnamstyle
+    private static async Task MatchEnd(string gan, string perd, bool abandono = false)//gangnamstyle
     {
         DateTime fim = DateTime.Now;
         TimeSpan duracao = fim - _playing_client_info[gan].inicio;
@@ -257,14 +258,14 @@ public class WebSocketServer
 
         string boards = _playing_client_info[gan].boards[0] + _playing_client_info[gan].boards[1]; 
 
-
         fim_partida fp = new fim_partida(
             ganhador: gan,
             perdedor: perd,
             tabuleiros: boards,
             elo_diff_ganhador: new_elo_w,
             elo_diff_perdedor: new_elo_l,
-            duracao_ms: dur_total_ms
+            duracao_ms: dur_total_ms,
+            abandonou: abandono
         );
 
         var client = new HttpClient();
@@ -275,8 +276,8 @@ public class WebSocketServer
         _clients_sockets.TryGetValue(gan, out WebSocket? ganws);
 
 
-        if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l} {_playing_client_info[gan].opp}" , lws);
-        if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w} {_playing_client_info[perd].opp}" , ganws);
+        if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l} {perd} {dur_total_ms}" , lws);
+        if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w} {gan} {dur_total_ms}" , ganws);
 
         await UpdateStats(gan);
         await UpdateStats(perd);
@@ -309,13 +310,13 @@ public class WebSocketServer
                 
                 else if (message.StartsWith("abandonar"))
                 {
-                    await MatchEnd(_playing_client_info[id].opp, id);
+                    await MatchEnd(_playing_client_info[id].opp, id, true);
                 }
                 else if (!message.StartsWith("jogar"))
                 {
                     if (_playing_client_info[id].strikes == 2)
                     {
-                        await MatchEnd(_playing_client_info[id].opp, id);
+                        await MatchEnd(_playing_client_info[id].opp, id, true);
                     }
                     else
                     {
