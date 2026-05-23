@@ -128,7 +128,7 @@ async function validarNome(){
         return false;
     }
 
-    if(await buscarNome(novo_nome)){
+    if(novo_nome!=nome_user && await buscarNome(novo_nome)){
         msg.innerText = "Nome já em uso! =C";
         return false;
     }
@@ -170,6 +170,11 @@ function validarSenha(){
         return false;
     }
 
+    if(sen1.value.length>32){
+        msg.innerText = "Senha muito longa! (limite 32 caracteres)";
+        return false;
+    }
+    
     if(!regex.test(sen1.value)){
         msg.innerText = "A senha permite apenas letras, números, { _ * #}";
         return false;
@@ -278,16 +283,67 @@ async function senhaConfirmacao(){
     
 };
 
+const sen4 = document.getElementById("password4");
+
+async function deletar(){
+    try {
+        const response = await fetch(`http://${host}:5269/deletarconta`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "nome": nome_user, "senha": sen4.value })
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        if(data==="CREDINV"){
+            document.getElementById("message2").innerText = "Senha ERRADA!";
+            return;
+        }
+
+        if (!response.ok) {
+            document.getElementById("message2").innerText = `Erro ${response.status}`;
+            return;
+        }
+
+        localStorage.clear();
+        document.getElementById("login").click();
+
+
+    } catch(e) {
+        document.getElementById("message2").innerText = "Erro ao conectar com o servidor." + e;
+    }
+}
+
+function vira(){
+    if(document.getElementById("dados").style.display === "block"){
+        document.getElementById("trocar").textContent = "mudar dados";
+        document.getElementById("deletarconta").style.display = "block";
+        document.getElementById("dados").style.display = "none";
+        document.getElementById("trocar").classList.remove("delet");
+        document.getElementById("trocar").classList.add("muddados");
+        return;
+    }
+    document.getElementById("trocar").textContent = "deletar conta";
+    document.getElementById("deletarconta").style.display = "none";
+    document.getElementById("dados").style.display = "block";
+    document.getElementById("trocar").classList.remove("muddados");
+    document.getElementById("trocar").classList.add("delet");
+
+}
 function mostrar_senha(){
     document.getElementById("password").type = "text";
     document.getElementById("password2").type = "text";
     document.getElementById("password3").type = "text";
+    document.getElementById("password4").type = "text";
 };
 
 function esconder_senha(){
     document.getElementById("password").type = "password";
     document.getElementById("password2").type = "password";
     document.getElementById("password3").type = "password";
+    document.getElementById("password4").type = "password";
 };
 
 function cancelar(){

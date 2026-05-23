@@ -37,14 +37,14 @@ body {
     font-weight: 600;
     color: #007bff;
 }
-#leaderboard p{
+#pregui{
     margin-top: 10px;
     margin-bottom: 0;
 }
 .tops{
     padding-left: 20px;
     padding-right: 20px;
-    display: flex;
+    display: block;
     font-size: 20px;
     font-weight: 500;
     color: #666;
@@ -52,6 +52,7 @@ body {
     height: 470px;
     width: 90%;
 }
+
 table {
     table-layout: fixed;
     width: 90%;
@@ -60,43 +61,67 @@ table {
     border-top: 1px solid #999999;
     border-bottom: 1px solid #999999;
 }
+tr{
+    vertical-align: top;
+    height: 5px;
+}
+th{
+    height: 0px;
+}
 
 th,
 td {
-    vertical-align: top;
-    padding: 0.6em;
+    padding: 10px;
+    padding-top: 15px;
+    padding-bottom: 5px;
 }
-
 tr :nth-child(3) {
-    text-align: right;
-
+    vertical-align: center;
+    width: 50px;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 tr :nth-child(2) {
     text-align: center;
-
 }
 
 tr :nth-child(1) {
     text-align: left;
-}
-
-tfoot tr :nth-child(1) {
-    text-align: right;
-}
-
-tfoot tr :nth-child(2) {
-    text-align: left;
-}
-
-tfoot {
-    border-top: 1px solid #999999;
+    width: 30px;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 tbody tr:nth-child(odd) {
     background-color: #eeeeee;
 }
+tbody{
+    vertical-align: top;
+}
 
+#led_name{
+    padding-left: 72px;
+    text-align: left;
+}
+.leader_prof{
+    height: 30px;
+    width: 50px;
+    border-radius: 50%;
+    background-color: white;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-right: 30px;
+    margin-left: 0px;
+}
+.leader{
+    display: flex;
+    padding: 10px;
+}
+.lead{
+    margin-top: auto;
+    margin-bottom: auto;
+}
 #perfil {
     background: white;
     border-radius: 12px;

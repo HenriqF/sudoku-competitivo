@@ -28,7 +28,7 @@ if(localStorage.getItem("tok")!==null){
         }
 
         if(message.startsWith("strike: ")){
-
+            shake(message.substring(8));
         }
 
         if(message.startsWith("ganhou:")){
@@ -38,6 +38,7 @@ if(localStorage.getItem("tok")!==null){
             let pos_info = message.split(' ');
             nome = pos_info[2];
             ganhador(pos_info[1]);
+            document.getElementById("tempo").textContent = csTOtimer(pos_info[3].substring(0,pos_info[3].length-1));
         }  
             
         if(message.startsWith("perdeu:")){
@@ -47,6 +48,7 @@ if(localStorage.getItem("tok")!==null){
             let pos_info = message.split(' ');
             nome = pos_info[2];
             perdedor(pos_info[1]);
+            document.getElementById("tempo").textContent = csTOtimer(pos_info[3].substring(0,pos_info[3].length-1));
         }
 
         if(message.startsWith("procurando por oponente...")){
@@ -103,9 +105,7 @@ if(localStorage.getItem("tok")!==null){
 
 let timerInterval;
 let isRunning = false;
-let csecs;
-let secs;
-let min;
+let totalCsecs;
 
 function timer(tempo_passado) {
     
@@ -121,11 +121,11 @@ function timer(tempo_passado) {
     const timerElement = document.getElementById("timer");
 
     timerInterval = setInterval(() => {
-        const totalCsecs = Math.floor((Date.now() - startTime) / 10);
+        totalCsecs = Math.floor((Date.now() - startTime) / 10);
         
-        min = Math.floor(totalCsecs / 6000);
-        secs = Math.floor((totalCsecs % 6000) / 100);
-        csecs = totalCsecs % 100; 
+        let min = Math.floor(totalCsecs / 6000);
+        let secs = Math.floor((totalCsecs % 6000) / 100);
+        let csecs = totalCsecs % 100; 
 
         const displayS = secs < 10 ? '0' + secs : secs;
         const displayCS = csecs < 10 ? '0' + csecs : csecs;
@@ -146,15 +146,30 @@ function ganhador(lucro){
     Carregardados();
     msg_posjogo.textContent = "VITÓRIA";
     pontos.style.color = "#7dda75";
-    pontos.textContent = `+${lucro} de elo..`;
+    pontos.textContent = `+${lucro} de elo`;
 }
 
 function perdedor(preju){
     Carregardados();
     msg_posjogo.textContent = "DERROTA";
     pontos.style.color = "#eb6a6a";
-    pontos.textContent = `${preju} de elo..`;
+    pontos.textContent = `${preju} de elo`;
 }
+
+function csTOtimer(cs){
+
+    let min = Math.floor(cs / 6000);
+    let secs = Math.floor((cs % 6000) / 100);
+    let csecs = cs % 100;
+
+    const displayS = secs < 10 ? '0' + secs : secs;
+    const displayCS = csecs < 10 ? '0' + csecs : csecs;
+
+    if (min === 0) return(`${displayS}.${displayCS}`);
+        
+    return (`${min}:${displayS}.${displayCS}`);
+}
+
 
 const infoNome = document.getElementById("nome");
 const infoEmail = document.getElementById("email");
@@ -180,7 +195,7 @@ async function Carregardados(){
         infoElo.textContent = `Elo: ${data.elo}`;
         infoWins.textContent = `Vitórias: ${data.vitorias}`;
         infoDefeats.textContent = `Derrotas: ${data.partidas - data.vitorias}`;
-        infoMelhorTempo.textContent = `Melhor tempo: ${data.melhor_tempo}`;
+        infoMelhorTempo.textContent = `Melhor tempo: ${csTOtimer(Math.floor(data.melhor_tempo/10))}`;
 
 
     } catch (error) {
@@ -193,3 +208,22 @@ async function Carregardados(){
 perdedor(20);
 
 function menu() {document.getElementById("menu").click();}
+
+let txtStrikes;
+
+function shake(erros){
+    document.getElementById("sus").classList.add("shake");
+    document.getElementById("strikes").style.color = "red";
+
+    document.getElementById("strikes").textContent = `${erros}/3 erros`
+
+    setTimeout(() => {
+        document.getElementById("sus").classList.remove("shake");
+    }, 100);
+    
+    clearTimeout(txtStrikes);
+
+    txtStrikes = setTimeout(() => {
+        document.getElementById("strikes").style.color = "white";
+    }, 5000);
+}

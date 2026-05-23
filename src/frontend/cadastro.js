@@ -39,7 +39,7 @@ async function fazerSignup(){
             mensagem.innerText = (await response.text()).slice(1, -1);
             return;
         }
-
+        
         const data  = await response.json();
         
         mensagem.style.color = "green";
@@ -53,15 +53,26 @@ async function fazerSignup(){
 
 function validarCadastro(){
     let regex = /^[a-zA-Z0-9]*$/;
-    let regex2 = /^[a-zA-Z0-9@.]*$/;
+    let regex2 = /^[a-zA-Z0-9@._/-/+]*$/;
+    let regex3 = /^[a-zA-Z0-9_*#]*$/;
 
     if(userCadastro.value == "" || emailCadastro.value == "" || senhaCadastro.value == "" || senhaConfirm.value == ""){
         mensagem.innerText = "Campo em Branco!";
         return false;
     }
 
-    if(!regex.test(userCadastro.value)||!regex2.test(emailCadastro.value)||!regex.test(senhaCadastro.value)){
-        mensagem.innerText = "Somente letras e números são permitidos!";
+    if(!regex.test(userCadastro.value)||!regex2.test(emailCadastro.value)||!regex3.test(senhaCadastro.value)){
+        mensagem.innerText = "Caractere inválido!";
+        return false;
+    }
+
+    if(senhaCadastro.value.length > 32){
+        mensagem.innerText = "Senha muito longa! (limite 32 caracteres)";
+        return false;
+    }
+
+    if(emailCadastro.value.length >254){
+        mensagem.innerText = "Email muito longa! (limite 254 caracteres)";
         return false;
     }
 
