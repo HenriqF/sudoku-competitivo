@@ -66,11 +66,43 @@ textarea:disabled{
     border: none; 
     cursor: pointer;
     font-size: 1.6rem;
+    padding-top: 15px;
+    padding-bottom: 25px;
     &:hover{
         background: #005fd3;
     }
 }
-
+#sair_queue{
+    margin-top: 1rem;
+    width: 445px;
+    height: 80px;  
+    background: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    font-size: 2rem;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    &:hover{
+        background: #005fd3;
+    }
+}
+#desistente{
+    margin-top: -750px;
+    margin-left: 1540px;
+    width: 345px;
+    height: 60px;
+    background: rgb(255, 118, 118);
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    font-size: 1.6rem;
+    padding-top: 15px;
+    padding-bottom: 25px;
+    &:hover{
+        background: rgb(218, 80, 80);
+    }
+}
 #searching{
     display: none;
     text-align: center;

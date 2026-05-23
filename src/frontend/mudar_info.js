@@ -4,6 +4,9 @@ var foto_user;
 var jwt_token;
 var email;
 
+const click_sound = new Audio("sons/click.mp3");
+const algo_errado = new Audio("sons/algoerrado.mp3");
+
 const infoNome = document.getElementById("nome");
 const infoEmail = document.getElementById("user_email");
 const infoFoto = document.getElementById("foto");
@@ -63,6 +66,10 @@ async function Carregardados(){
 };
 
 function change(x){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     if(x==1){
         novo_nome = document.getElementById("username").value;
         infoNome.textContent = novo_nome;
@@ -95,16 +102,28 @@ function change(x){
         }
     }
 }
-
+function algoERRADO(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    algo_errado.pause();
+    algo_errado.currentTime = 0;
+    algo_errado.play();
+}
 async function validarDados(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     if(document.getElementById("check_nome").checked && !(await validarNome())) return;
     if(document.getElementById("check_foto").checked && !validarFoto()) return;
     if(document.getElementById("check_senha").checked && !validarSenha()) return;
     if(!document.getElementById("check_senha").checked && !document.getElementById("check_foto").checked && !document.getElementById("check_nome").checked){
+        algoERRADO();
         msg.innerText = "Palhaço...";
         return;
         }
     if(sen3.value===""){
+        algoERRADO();
         msg.innerText = "Confirme com sua senha!";
         return;
     }
@@ -119,16 +138,19 @@ async function validarNome(){
     novo_nome = document.getElementById("username").value;
 
     if(!regex.test(novo_nome)){
+        algoERRADO();
         msg.innerText = "Somente letras e números são permitidos!";
         return false;
     }
 
     if(novo_nome.length > 13){
+        algoERRADO();
         msg.innerText = "Nome muito longo! (limite de 13 caracteres)";
         return false;
     }
 
     if(novo_nome!=nome_user && await buscarNome(novo_nome)){
+        algoERRADO();
         msg.innerText = "Nome já em uso! =C";
         return false;
     }
@@ -155,7 +177,9 @@ async function buscarNome(nome_buscado) {
 
 function validarFoto(){
     novo_foto = document.getElementById("user_foto").value;
+
     if(!novo_foto.startsWith("https://i.pinimg.com/")){
+        algoERRADO();
         msg.innerText = "URL deve começar com https://i.pinimg.com/";
         return false;
     }
@@ -166,16 +190,19 @@ function validarSenha(){
     let regex = /^[a-zA-Z0-9_*#]*$/;
 
     if(sen1.value !=sen2.value){
+        algoERRADO();
         msg.innerText = "Senhas Diferentes!";
         return false;
     }
 
     if(sen1.value.length>32){
+        algoERRADO();
         msg.innerText = "Senha muito longa! (limite 32 caracteres)";
         return false;
     }
     
     if(!regex.test(sen1.value)){
+        algoERRADO();
         msg.innerText = "A senha permite apenas letras, números, { _ * #}";
         return false;
     }
@@ -212,6 +239,7 @@ async function mudarDados() {
             });
 
         if (!response.ok) {
+            algoERRADO();
             msg.innerText = `Erro ${response.status}`;
             return;
         }
@@ -224,6 +252,7 @@ async function mudarDados() {
         fazerLogin();
 
     } catch{
+        algoERRADO();
         msg.innerText = "Erro ao Enviar Dados";
     }
 }
@@ -243,6 +272,7 @@ async function fazerLogin(){
         const data = await response.json();
 
         if(data==="CREDINV"){
+            algoERRADO();
             msg.innerText = "Credenciais Inválidas!";
             return;
         }
@@ -252,6 +282,7 @@ async function fazerLogin(){
         document.getElementById("menu").click();
 
     } catch {
+        algoERRADO();
         msg.innerText = "Erro ao conectar com o servidor.";
     }
     
@@ -270,6 +301,7 @@ async function senhaConfirmacao(){
         const data = await response.json();
 
         if(data==="CREDINV"){
+            algoERRADO();
             msg.innerText = "Senha ERRADA!";
             return false;
         }
@@ -277,6 +309,7 @@ async function senhaConfirmacao(){
         return true;
 
     } catch(e) {
+        algoERRADO();
         msg.innerText = "Erro ao conectar com o servidor." + e;
         return false;
     }
@@ -286,6 +319,10 @@ async function senhaConfirmacao(){
 const sen4 = document.getElementById("password4");
 
 async function deletar(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     try {
         const response = await fetch(`http://${host}:5269/deletarconta`, {
             method: 'POST',
@@ -298,11 +335,13 @@ async function deletar(){
         console.log(data);
 
         if(data==="CREDINV"){
+            algoERRADO();
             document.getElementById("message2").innerText = "Senha ERRADA!";
             return;
         }
 
         if (!response.ok) {
+            algoERRADO();
             document.getElementById("message2").innerText = `Erro ${response.status}`;
             return;
         }
@@ -312,11 +351,16 @@ async function deletar(){
 
 
     } catch(e) {
+        algoERRADO();
         document.getElementById("message2").innerText = "Erro ao conectar com o servidor." + e;
     }
 }
 
 function vira(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     if(document.getElementById("dados").style.display === "block"){
         document.getElementById("trocar").textContent = "mudar dados";
         document.getElementById("deletarconta").style.display = "block";
