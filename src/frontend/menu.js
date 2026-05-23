@@ -54,9 +54,10 @@ async function leader() {
 
             table.innerHTML += `
                 <tr>
-                <th scope="row">#${j}</th>
-                <td>${data[i][0]}</td>
-                <td>${data[i][1]}</td>
+                <th scope="row"><p class="lead">#${j}</p></th>
+                <td class="leader"><img class="leader_prof" src="${data[i][2]}">
+                <p class="lead">${data[i][0]}</p></td>
+                <td><p class="lead">${data[i][1]}</p></td>
                 </tr>
                 `
         }
@@ -83,7 +84,7 @@ async function Carregardados(){
         infoElo.textContent = `Elo: ${data.elo}`;
         infoWins.textContent = `Vitórias: ${data.vitorias}`;
         infoDefeats.textContent = `Derrotas: ${data.partidas - data.vitorias}`;
-        infoMelhorTempo.textContent = `Melhor tempo: ${data.melhor_tempo}`;
+        infoMelhorTempo.textContent = `Melhor tempo: ${csTOtimer(Math.floor(data.melhor_tempo/10))}`;
 
 
     } catch (error) {
@@ -93,6 +94,19 @@ async function Carregardados(){
     
 };
 
+function csTOtimer(cs){
+
+    let min = Math.floor(cs / 6000);
+    let secs = Math.floor((cs % 6000) / 100);
+    let csecs = cs % 100;
+
+    const displayS = secs < 10 ? '0' + secs : secs;
+    const displayCS = csecs < 10 ? '0' + csecs : csecs;
+
+    if (min === 0) return(`${displayS}.${displayCS}`);
+        
+    return (`${min}:${displayS}.${displayCS}`);
+}
 
 async function jogar(){
     const response = await fetch(`https://${host}:7185/jogartoken/${nome_user}`, {

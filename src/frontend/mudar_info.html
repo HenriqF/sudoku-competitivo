@@ -9,6 +9,7 @@
 <body>
     <div class="section">
         <div id="perfil">
+            <p class="delet" id="trocar" onclick="vira()">deletar conta</p>
             <div id="perfil-top">
                 <img id="foto">
                 <div id="perfil-info">
@@ -18,7 +19,7 @@
             </div>
         </div>
         <br>
-        <div id="dados">
+        <div id="dados" style="display: block;">
             <h2>Mudar Dados</h2>
             <div onchange="change(3)" id="categorias">
                 <input class="check" type="checkbox" id="check_nome" checked>
@@ -33,12 +34,24 @@
             <input onchange="change(2)" class="input" type="text" id="user_foto" placeholder="URL Foto de perfil">
             <input class="input" type="password" id="password" style="display: none;" placeholder="Nova senha">
             <input class="input" type="password" id="password2" style="display: none;" placeholder="Confirmar nova senha">
-            <input class="input" type="password" id="password3" placeholder="Sua senha atual">
+            <input class="input" type="password" id="password3" placeholder="Confirme com sua senha">
             <p onmousedown="mostrar_senha()" onmouseup="esconder_senha()" id="curto">Mostrar senha</p>
-            <button onclick="validarDados()">Confirmar</button>
+            <button id="confirm" onclick="validarDados()">Confirmar</button>
             <div id="message"></div>
-            <p onclick="cancelar()">CANCELAR</p>
+            <p id="cancel" onclick="cancelar()">CANCELAR</p>
+        </div>
+
+        <div id="deletarconta" style="display: none;">
+            <h2 id="pdelcont">Deletar Conta</h2>
+            <input class="input" type="password" id="password4" placeholder="Confirme com sua senha">
+            <p onmousedown="mostrar_senha()" onmouseup="esconder_senha()" id="curto">Mostrar senha</p>
+            <button id="delbut" onclick="deletar()">Deletar</button>
+            <div id="message2"></div>
+            <p id="cancel" onclick="cancelar()">CANCELAR</p>
+        </div>
     </div>
+
+    
     <a href="menu.html" id="menu"></a>
     <a href="login.html" id="login"></a>
     

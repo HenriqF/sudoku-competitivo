@@ -36,7 +36,7 @@ textarea:disabled{
     color: #87898b;
 }
 
-.um{
+#sus{
     background-color: white;
     padding: 2.5rem; 
     border-radius: 8px; 
@@ -73,8 +73,7 @@ textarea:disabled{
 
 #searching{
     display: none;
-    margin-left: auto;
-    margin-right: auto;
+    text-align: center;
     margin-top: 15%;
 }
 
@@ -90,7 +89,7 @@ textarea:disabled{
     
 }
 #pos-top{
-    margin-top: 110px;
+    margin-top: 10px;
     margin-bottom: 140px;
 }
 #posjogo h1{
@@ -105,6 +104,13 @@ textarea:disabled{
     font-size: 40px;
     margin-top: 0px;
     color: #7dda75;
+}
+#tempo{
+
+    text-align: end;
+    font-size: 40px;
+    margin-top: 0px;
+    color: #aaaaaa;
 }
 #pos-bot{
     display: flex;
@@ -285,4 +291,27 @@ button{
     font-weight: 600;
     color: #aaaaaa;
     margin: 0.5rem;
+}
+
+#loading{
+    width: 70px;
+    height: 70px;
+    
+}
+
+.shake {
+  animation: shakeitoff 100ms;
+}
+@keyframes shakeitoff {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(0eg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+#strikes{
+    margin-top: 13px;
+    margin-bottom: -20px;
+    color: white;
 }

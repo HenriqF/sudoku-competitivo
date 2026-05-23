@@ -17,10 +17,12 @@
     </div>
 
     <div id="searching" style="display: block;">
-        <h1>Procurando jogador...</h1>
+        <h1>Procurando jogador</h1>
+        <img id="loading" src="https://portal.ufvjm.edu.br/a-universidade/cursos/grade_curricular_ckan_novo/loading.gif/@@images/image.gif" alt="">
     </div>
 
     <div id="posjogo" style="display: none;">
+        <h4 id="tempo">00.00</h3>
         <div id="pos-top">
             <h1 id="vic-der">VITÓRIA</h1>
             <h3 id="pdls">+18</h3>
@@ -64,7 +66,7 @@
             </div>
         </div>
         
-        <div class="um" id="sus" style="display:block">
+        <div id="sus" style="display:block">
             <h2 id="timer">00.00</h2>
 
             <textarea maxlength="1" id="1"></textarea>
@@ -118,6 +120,7 @@
             <textarea maxlength="1" id="36"></textarea>
             <br>
             <button id="final" onclick="finalizar()">Mandar</button>
+            <p id="strikes">0/3 erros</p>
         </div>
     </div>
     
