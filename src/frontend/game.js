@@ -60,7 +60,7 @@ click_sound.play();
         }
 
         if(message.startsWith("ganhou:")){
-            timer();
+            parar_tempo();
             ganhou.pause();
             ganhou.currentTime = 0;
             ganhou.play();
@@ -73,7 +73,7 @@ click_sound.play();
         }  
 
         if(message.startsWith("perdeu:")){
-            timer();
+            parar_tempo();
             perdeu.pause();
             perdeu.currentTime = 0;
             perdeu.play();
@@ -148,25 +148,20 @@ click_sound.play();
 }
 
 let timerInterval;
-let isRunning = false;
 let totalCsecs;
 
-function timer(tempo_passado) {
-    
-    if (isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        return;
-    }
+function parar_tempo(){
+    clearInterval(timerInterval);
+}
 
-    isRunning = true;
+function timer(tempo_passado) {
 
     const startTime = Date.now() - tempo_passado;
     const timerElement = document.getElementById("timer");
 
     timerInterval = setInterval(() => {
         totalCsecs = Math.floor((Date.now() - startTime) / 10);
-        
+
         let min = Math.floor(totalCsecs / 6000);
         let secs = Math.floor((totalCsecs % 6000) / 100);
         let csecs = totalCsecs % 100; 
