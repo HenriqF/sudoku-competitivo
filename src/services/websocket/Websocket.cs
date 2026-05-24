@@ -147,10 +147,9 @@ public class WebSocketServer
     private static MatchMaker mm = null!;
 
     //variaveis    
+    private static IHttpClientFactory? cf = null;
     private static ConcurrentDictionary<string, WebSocket> _clients_sockets = new(); //playre weebsocket
     private static ConcurrentDictionary<string, user_stats> _clients_stats = new(); //player stats ()
-
-
     private static ConcurrentDictionary<string, pc_info> _playing_client_info = new();
     //-------
 
@@ -179,7 +178,7 @@ public class WebSocketServer
 
     private static async Task<bool> UpdateStats(string jog)
     {
-        var client = new HttpClient();
+        HttpClient? client = cf!.CreateClient("bd_s");
         var get_stats_response = await client.GetAsync($"http://localhost:5127/stats/{jog}");
         if (! get_stats_response.IsSuccessStatusCode)return false;
 
@@ -192,9 +191,9 @@ public class WebSocketServer
 
     private static async void MatchFound(string p1, string p2)
     {
-        var client = new HttpClient();
+        HttpClient? client = cf!.CreateClient("sudoku_s");
         new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>(
-            "http://localhost:5121/new"
+            "/new"
         );
 
         if (sudoku == null)
@@ -268,8 +267,8 @@ public class WebSocketServer
             abandonou: abandono
         );
 
-        var client = new HttpClient();
-        await client.PutAsJsonAsync("http://localhost:5127/fimpartida", fp);
+        HttpClient? client = cf!.CreateClient("bd_s");
+        await client.PutAsJsonAsync("fimpartida", fp);
 
 
         _clients_sockets.TryGetValue(perd, out WebSocket? lws);
@@ -370,9 +369,17 @@ public class WebSocketServer
         {
             opts.ShutdownTimeout = TimeSpan.FromSeconds(1);
         });
+        builder.Services.AddHttpClient("bd_s", client => { client.BaseAddress = new Uri("http://localhost:5127/");});
+        builder.Services.AddHttpClient("interface_s", client => { client.BaseAddress = new Uri("http://localhost:5269/");});
+        builder.Services.AddHttpClient("sudoku_s", client => { client.BaseAddress = new Uri("http://localhost:5121/");});
+
+        builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.None);
+
         builder.Services.AddSingleton<MatchMaker>();
         builder.Services.AddHostedService(servp => servp.GetRequiredService<MatchMaker>());
+
         var app = builder.Build();
+        cf = app.Services.GetRequiredService<IHttpClientFactory>();
 
         mm = app.Services.GetRequiredService<MatchMaker>();
         mm._onMatch = MatchFound;
@@ -387,15 +394,16 @@ public class WebSocketServer
             return;
         });
 
-        app.Map("/ws/{token}", async context =>
+        app.Map("/ws/{token}", async (HttpContext context) =>
         {
             if (!context.WebSockets.IsWebSocketRequest) return;
 
             string? token = context.Request.RouteValues["token"]?.ToString();
             if (token == null) return;
 
-            var client = new HttpClient();
-            var response = await client.GetAsync($"http://localhost:5269/confirmar/{token}");
+
+            HttpClient? client = cf.CreateClient("interface_s");
+            var response = await client.GetAsync($"/confirmar/{token}");
 
             if (response.StatusCode == HttpStatusCode.Unauthorized) return;
             string usuario = (await response.Content.ReadFromJsonAsync<string>())!;
@@ -461,8 +469,6 @@ public class WebSocketServer
                 Console.WriteLine($"saiu: {client_id}");
             }
         });
-
-    
 
         app.Run();
     }

@@ -70,12 +70,12 @@ public class Interface
 
     }
 
-    private static async Task<bool> Cadastrar(Cadastro dados)
+    private static async Task<bool> Cadastrar(Cadastro dados, IHttpClientFactory cf)
     {
-        var client = new HttpClient();
+        HttpClient? client = cf.CreateClient("bd_s");
         try
         {
-            var i = await client.PostAsJsonAsync($"http://localhost:5127/cadastrar", dados);
+            var i = await client.PostAsJsonAsync($"cadastrar", dados);
             if (!i.IsSuccessStatusCode)
             {
                 return false;
@@ -151,11 +151,16 @@ public class Interface
                 policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
             });
         });
+       
+        builder.Services.AddHttpClient("sudoku_s", client => { client.BaseAddress = new Uri("http://localhost:5121/");});
+        builder.Services.AddHttpClient("bd_s", client => { client.BaseAddress = new Uri("http://localhost:5127/"); });
+       
         var app = builder.Build();
         app.UseCors("AllowAll"); //marcelo aqui
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
+        IHttpClientFactory cf = app.Services.GetRequiredService<IHttpClientFactory>();
 
         app.MapGet("/online", () =>
         {
@@ -164,10 +169,8 @@ public class Interface
 
         app.MapGet("/zen", async () =>
         {
-            var client = new HttpClient();
-            new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>(
-                "http://localhost:5121/new"
-            );
+            HttpClient? client = cf.CreateClient("sudoku_s");
+            new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>("new");
             if (sudoku == null) return Results.InternalServerError();
     
             return Results.Ok(sudoku.boards[0] + sudoku.boards[1]);
@@ -181,9 +184,9 @@ public class Interface
                 if (! VerificarSenha(data.senha)) return Results.NotFound("CREDINV");
 
 
-                var client = new HttpClient();  
+                HttpClient? client = cf.CreateClient("bd_s");
                 user_private_info? dados = await client.GetFromJsonAsync<user_private_info>(
-                    $"http://localhost:5127/find/{data.nome}"
+                    $"/find/{data.nome}"
                 );
 
                 if (dados == null) return Results.NotFound("CREDINV");
@@ -222,15 +225,15 @@ public class Interface
                 if (! VerificarMail(data.email))return Results.NotFound("EMAILCREDINV");
                 if (! VerificarSenha(data.senha))return Results.NotFound("SENHACREDINV");
 
-                var client = new HttpClient();  
+                HttpClient? client = cf.CreateClient("bd_s");
                 user_private_info? dados = await client.GetFromJsonAsync<user_private_info>(
-                    $"http://localhost:5127/find/{data.nome}"
+                    $"/find/{data.nome}"
                 );
                 return Results.Conflict("Coagulo já existe");
             }
             catch
             {
-                Task<bool> t = Cadastrar(data);
+                Task<bool> t = Cadastrar(data, cf);
                 if (await t)
                 {
                     return Results.Created($"/login/", new Login(data.nome, data.senha));  
@@ -244,9 +247,10 @@ public class Interface
         {   
             try
             {
-                var client = new HttpClient();  
+                HttpClient? client = cf.CreateClient("bd_s");
+
                 user_private_info? dados = await client.GetFromJsonAsync<user_private_info>(
-                    $"http://localhost:5127/find/{data.nome}"
+                    $"/find/{data.nome}"
                 );
 
                 if (dados == null) return Results.NotFound("CREDINV");
@@ -295,24 +299,24 @@ public class Interface
             if (! VerificarSenha(data.senha) && data.senha != "")return Results.Unauthorized();
             if (! VerificarFoto(data.foto) && data.foto != "")return Results.Unauthorized();
 
-            var client = new HttpClient();  
-            var i = await client.PutAsJsonAsync($"http://localhost:5127/trocardados", data);
+            HttpClient? client = cf.CreateClient("bd_s");
+            var i = await client.PutAsJsonAsync($"/trocardados", data);
 
             return Results.Ok("trocado");
         });
 
-        app.MapGet("/leaderboard", async () =>
+        app.MapGet("/leaderboard", async (IHttpClientFactory cf) =>
         {
-            var client = new HttpClient();
+            HttpClient? client = cf.CreateClient("bd_s");
 
-            var response = await client.GetAsync("http://localhost:5127/leaderboard");
+            var response = await client.GetAsync("leaderboard");
 
             if (response.StatusCode == HttpStatusCode.NoContent || ! response.IsSuccessStatusCode)
             {
                 return Results.NoContent();
             }
 
-            var dados = await client.GetFromJsonAsync<List<player_elo_rel>>("http://localhost:5127/leaderboard");
+            var dados = await client.GetFromJsonAsync<List<player_elo_rel>>("/leaderboard");
 
             var formatado = dados!.Select(u => new object[] {u.nome, u.elo, u.foto}).ToList();
 
@@ -320,8 +324,8 @@ public class Interface
         });
 
         app.MapGet("/stats/{nome}", async (string nome) => {
-            var client = new HttpClient();
-            var response = await client.GetAsync($"http://localhost:5127/stats/{nome}");
+            HttpClient? client = cf.CreateClient("bd_s");
+            var response = await client.GetAsync($"/stats/{nome}");
 
             if (! response.IsSuccessStatusCode)
             {
@@ -330,7 +334,7 @@ public class Interface
 
 
             var stats = await client.GetFromJsonAsync<user_stats>(
-                $"http://localhost:5127/stats/{nome}"
+                $"/stats/{nome}"
             );
 
             return Results.Ok(stats);
@@ -338,8 +342,8 @@ public class Interface
 
         app.MapGet("/existe/{nome}", async (string nome) =>
         {
-            var client = new HttpClient();
-            var response = await client.GetFromJsonAsync<int>($"http://localhost:5127/existe/{nome}");
+            HttpClient? client = cf.CreateClient("bd_s");
+            var response = await client.GetFromJsonAsync<int>($"/existe/{nome}");
             return Results.Ok(response);
         });
 
