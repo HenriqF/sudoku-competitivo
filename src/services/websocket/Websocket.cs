@@ -154,11 +154,6 @@ public class WebSocketServer
     //-------
 
 
-    private static void RemovePlayingClient(string id)
-    {   
-        _playing_client_info.TryRemove(id, out _);
-    }
-
     private static async Task MessageClientAsync(string message, WebSocket webSocket)
     {
         try
@@ -230,8 +225,12 @@ public class WebSocketServer
 
     private static async Task MatchEnd(string gan, string perd, bool abandono = false)//gangnamstyle
     {
+        if (!_playing_client_info.TryRemove(gan, out pc_info? gan_info)) return;
+        _playing_client_info.TryRemove(perd, out _);
+        
+
         DateTime fim = DateTime.Now;
-        TimeSpan duracao = fim - _playing_client_info[gan].inicio;
+        TimeSpan duracao = fim - gan_info!.inicio;
         int dur_total_ms = (int) duracao.TotalMilliseconds;
 
 
@@ -255,7 +254,7 @@ public class WebSocketServer
         int new_elo_w = winner_elo + elo_diff_w;
         int new_elo_l = loser_elo + elo_diff_l;
 
-        string boards = _playing_client_info[gan].boards[0] + _playing_client_info[gan].boards[1]; 
+        string boards = gan_info.boards[0] + gan_info.boards[1]; 
 
         fim_partida fp = new fim_partida(
             ganhador: gan,
@@ -270,19 +269,14 @@ public class WebSocketServer
         HttpClient? client = cf!.CreateClient("bd_s");
         await client.PutAsJsonAsync("fimpartida", fp);
 
-
         _clients_sockets.TryGetValue(perd, out WebSocket? lws);
         _clients_sockets.TryGetValue(gan, out WebSocket? ganws);
-
 
         if (lws != null) await MessageClientAsync($"perdeu: {elo_diff_l} {perd} {dur_total_ms}" , lws);
         if (ganws != null) await MessageClientAsync($"ganhou: {elo_diff_w} {gan} {dur_total_ms}" , ganws);
 
         await UpdateStats(gan);
         await UpdateStats(perd);
-
-        RemovePlayingClient(gan);
-        RemovePlayingClient(perd);
     }
 
 
@@ -300,27 +294,27 @@ public class WebSocketServer
             Console.WriteLine($"{id}: {message}");
 
 
-            if (_playing_client_info.ContainsKey(id))
+            if (_playing_client_info.TryGetValue(id, out pc_info? info))
             {
-                if (message == _playing_client_info[id].boards[1])
+                if (message == info.boards[1])
                 {
-                    await MatchEnd(id, _playing_client_info[id].opp);
+                    await MatchEnd(id, info.opp);
                 }
                 
                 else if (message.StartsWith("abandonar"))
                 {
-                    await MatchEnd(_playing_client_info[id].opp, id, true);
+                    await MatchEnd(info.opp, id, true);
                 }
                 else if (!message.StartsWith("jogar"))
                 {
-                    if (_playing_client_info[id].strikes == 2)
+                    if (info.strikes == 2)
                     {
-                        await MatchEnd(_playing_client_info[id].opp, id, true);
+                        await MatchEnd(info.opp, id, true);
                     }
                     else
                     {
-                        _playing_client_info[id].strikes += 1;
-                        await MessageClientAsync($"strike: {_playing_client_info[id].strikes}" , webSocket); 
+                        info.strikes += 1;
+                        await MessageClientAsync($"strike: {info.strikes}" , webSocket); 
                     }
                     
                 }
@@ -348,8 +342,6 @@ public class WebSocketServer
             {
                 await MessageClientAsync($"echo: {message}" , webSocket);
             }
-
-
         }
     
     }
