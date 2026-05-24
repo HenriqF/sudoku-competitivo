@@ -2,6 +2,17 @@ const userLogin = document.getElementById("username");
 const senhaLogin = document.getElementById("password");
 const mensagem = document.getElementById("message");
 
+const click_sound = new Audio("sons/click.mp3");
+const algo_errado = new Audio("sons/algoerrado.mp3");
+
+function algoERRADO(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    algo_errado.pause();
+    algo_errado.currentTime = 0;
+    algo_errado.play();
+}
+
 function mostrar_senha(){
     senhaLogin.type = "text";
 };
@@ -15,6 +26,10 @@ function trocar(){
 };
 
 async function fazerLogin(){
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     if(!(await  validarLogin())){
         return;
     }
@@ -30,6 +45,7 @@ async function fazerLogin(){
         const data = await response.json();
 
         if(data==="CREDINV"){
+            algoERRADO()
             mensagem.innerText = "Credenciais Inválidas!";
             return;
         }
@@ -39,6 +55,7 @@ async function fazerLogin(){
         document.getElementById("menu").click();
 
     } catch (error) {
+        algoERRADO()
         mensagem.innerText = "Erro ao conectar com o servidor.";
     }
     
@@ -48,16 +65,19 @@ async function validarLogin(){
     let regex = /^[a-zA-Z0-9]*$/;
 
     if(userLogin.value == "" || senhaLogin.value == ""){
+        algoERRADO()
         mensagem.innerText = "Campo em Branco!";
         return false;
     }
 
     if(!regex.test(userLogin.value)||!regex.test(senhaLogin.value)){
+        algoERRADO()
         mensagem.innerText = "Somente letras e números são permitidos!";
         return false;
     }
 
     if(!(await buscarNome())){
+        algoERRADO()
         mensagem.innerText = "Credenciais Inválidas!";
         return false;
     }

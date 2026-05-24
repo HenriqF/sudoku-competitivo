@@ -17,15 +17,19 @@ if(localStorage.getItem("tok")!==null){
         let message = event.data.toString();
 
         if(message.startsWith("timer")){
-            comecou.pause();
-            comecou.currentTime = 0;
-            comecou.play();
-        }
-
-        if(message.startsWith("sudoku:")){
             document.getElementById("searching").style.display = "none";
             document.getElementById("posjogo").style.display = "none";
             document.getElementById("playground").style.display = "flex";
+            document.getElementById("sus").style.display = "none";
+            countdown();
+            comecou.pause();
+            comecou.currentTime = 0;
+            comecou.play();
+
+        }
+
+        if(message.startsWith("sudoku:")){
+            document.getElementById("sus").style.display = "block";
             let match_info = message.split(' ');
             jogando(match_info[1], match_info[2]);
 
@@ -272,3 +276,27 @@ function shake(erros){
     }, 5000);
 }
 
+function countdown(){
+    let num = document.getElementById("countdown");
+
+    num.textContent = 3;
+    num.style.display = "block";
+    num.classList.add("remix3");
+
+    setTimeout(() => {
+       num.classList.remove("remix3");
+       num.textContent = 2;
+       num.classList.add("remix2");
+       setTimeout(() => {
+            num.classList.remove("remix2");
+            num.textContent = 1;
+            num.classList.add("remix1");
+            setTimeout(() => {
+                num.style.display = "none";
+                num.classList.remove("remix1");
+            }, 1000);
+        }, 1000);
+    }, 1000);
+
+    
+}
