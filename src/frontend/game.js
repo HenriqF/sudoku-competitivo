@@ -13,6 +13,8 @@ if(localStorage.getItem("tok")!==null){
         sock.send("jogar");
     }; 
 
+click_sound.play();
+
     sock.onmessage = (event) => {
         let message = event.data.toString();
 
@@ -44,12 +46,16 @@ if(localStorage.getItem("tok")!==null){
         }
 
         if(message.startsWith("strike: ")){
-            if(message.substring(8)==1){strike1.play()}
-            if(message.substring(8)==2){
+            if(message.substring(8)==1){
                 strike1.pause();
                 strike1.currentTime = 0;
-                strike2.play();
-            }
+                strike1.play()}
+
+            if(message.substring(8)==2){
+                strike2.pause();
+                strike2.currentTime = 0;
+                strike2.play()}
+
             shake(message.substring(8));
         }
 
@@ -68,8 +74,6 @@ if(localStorage.getItem("tok")!==null){
 
         if(message.startsWith("perdeu:")){
             timer();
-            strike2.pause();
-            strike2.currentTime = 0;
             perdeu.pause();
             perdeu.currentTime = 0;
             perdeu.play();

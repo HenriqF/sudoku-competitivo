@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Zen</title>
+    <link rel="stylesheet" href="css/zen.css">
+</head>
+<body>
+    
+    <div id="sudoku" style="display: block;">
+        <button id="voltar" onclick="menu()">Voltar</button>
+
+        <div id="sus" style="display:block">
+
+            <textarea maxlength="1" id="1"></textarea>
+            <textarea maxlength="1" id="2"></textarea>
+            <textarea maxlength="1" class="last" id="3"></textarea>
+            
+            <textarea maxlength="1" id="4"></textarea>
+            <textarea maxlength="1" id="5"></textarea>
+            <textarea maxlength="1" id="6"></textarea>
+            <br>
+            <textarea maxlength="1" id="7"></textarea>
+            <textarea maxlength="1" id="8"></textarea>
+            <textarea maxlength="1" class="last" id="9"></textarea>
+            
+            <textarea maxlength="1" id="10"></textarea>
+            <textarea maxlength="1" id="11"></textarea>
+            <textarea maxlength="1" id="12"></textarea>
+            <br>
+            <br>
+            <textarea maxlength="1" id="13"></textarea>
+            <textarea maxlength="1" id="14"></textarea>
+            <textarea maxlength="1" class="last" id="15"></textarea>
+            
+            <textarea maxlength="1" id="16"></textarea>
+            <textarea maxlength="1" id="17"></textarea>
+            <textarea maxlength="1" id="18"></textarea>
+            <br>
+            <textarea maxlength="1" id="19"></textarea>
+            <textarea maxlength="1" id="20"></textarea>
+            <textarea maxlength="1" class="last" id="21"></textarea>
+
+            <textarea maxlength="1" id="22"></textarea>
+            <textarea maxlength="1" id="23"></textarea>
+            <textarea maxlength="1" id="24"></textarea>
+            <br>
+            <br>
+            <textarea maxlength="1" id="25"></textarea>
+            <textarea maxlength="1" id="26"></textarea>
+            <textarea maxlength="1" class="last" id="27"></textarea>
+
+            <textarea maxlength="1" id="28"></textarea>
+            <textarea maxlength="1" id="29"></textarea>
+            <textarea maxlength="1" id="30"></textarea>
+            <br>
+            <textarea maxlength="1" id="31"></textarea>
+            <textarea maxlength="1" id="32"></textarea>
+            <textarea maxlength="1" class="last" id="33"></textarea>
+
+            <textarea maxlength="1" id="34"></textarea>
+            <textarea maxlength="1" id="35"></textarea>
+            <textarea maxlength="1" id="36"></textarea>
+            <br>
+            <button id="final" onclick="finalizar()">Mandar</button>
+            <p id="strikes">0 erros</p>
+        </div>
+    </div>
+    
+    <div id="posgame" style="display: none;">
+        <h1>Parabéns!</h1>
+        <h3 id="feitos">Sudokus completos: 1</h3>
+
+        <button onclick="jogar()">Jogar</button>
+        <button onclick="menu()">Voltar</button>
+    </div>
+
+    <a id="menu" href="menu.html"></a>
+
+    <script src="persistent.js"></script>
+    <script src="zen.js"></script>
+</body>
+</html>

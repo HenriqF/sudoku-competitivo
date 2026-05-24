@@ -7,6 +7,8 @@ var email;
 const click_sound = new Audio("sons/click.mp3");
 const algo_errado = new Audio("sons/algoerrado.mp3");
 
+click_sound.play();
+
 const infoNome = document.getElementById("nome");
 const infoEmail = document.getElementById("user_email");
 const infoFoto = document.getElementById("foto");
@@ -110,9 +112,6 @@ function algoERRADO(){
     algo_errado.play();
 }
 async function validarDados(){
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
 
     if(document.getElementById("check_nome").checked && !(await validarNome())) return;
     if(document.getElementById("check_foto").checked && !validarFoto()) return;
@@ -319,9 +318,6 @@ async function senhaConfirmacao(){
 const sen4 = document.getElementById("password4");
 
 async function deletar(){
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
 
     try {
         const response = await fetch(`http://${host}:5269/deletarconta`, {
