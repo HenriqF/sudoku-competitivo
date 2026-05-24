@@ -10,6 +10,8 @@ using System.Xml;
 
 using contracts;
 
+namespace Sudoku;
+
 public class Sudoku
 {
     public static int board_size;
@@ -255,6 +257,11 @@ public class Sudoku
         var app = builder.Build();
         app.UseHttpsRedirection();
 
+        app.MapGet("/online", () =>
+        {
+           return Results.Ok("sim!"); 
+        });
+
         app.MapGet("/new", () =>
         {
             return Results.Ok(new new_sudokus(new_boards()));
@@ -265,3 +272,4 @@ public class Sudoku
 
 }
 
+public partial class Program { }
