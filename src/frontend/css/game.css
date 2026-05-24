@@ -347,3 +347,65 @@ button{
     margin-bottom: -20px;
     color: white;
 }
+
+#countdown{
+    color: rgb(255, 217, 0);
+    margin-top: 20px;
+    font-size: 90px;
+}
+
+.remix3{
+    animation: remexe3 1000ms;
+}
+.remix2{
+    animation: remexe2 1000ms;
+}
+.remix1{
+    animation: remexe1 1000ms;
+}
+
+@keyframes remexe3{
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(0eg); }
+    75% { transform: rotate(-15deg); }
+    100% { transform: rotate(0deg); }
+    from{
+        font-size: 0px;
+        color: red;
+    }
+    to{
+        font-size: 200px;
+        color: orange;
+    }
+}
+@keyframes remexe2{
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(0eg); }
+    75% { transform: rotate(-15deg); }
+    100% { transform: rotate(0deg); }
+    from{
+        font-size: 0px;
+        color: orange;
+    }
+    to{
+        font-size: 200px;
+        color: rgb(255, 217, 0);
+    }
+}
+@keyframes remexe1{
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(0eg); }
+    75% { transform: rotate(-15deg); }
+    100% { transform: rotate(0deg); }
+    from{
+        font-size: 0px;
+        color: rgb(255, 217, 0);
+    }
+    to{
+        font-size: 200px;
+        color: rgb(132, 219, 0);
+    }
+}
