@@ -1,8 +1,8 @@
-//cd src\services\interface && start cmd /k "dotnet run"
-//cd src\services\bd && start cmd /k "dotnet run"
-//cd src\services\websocket && start cmd /k "dotnet run"
-//cd src\services\sudoku_gen && start cmd /k "dotnet run"
-cd src\services\display_api && start cmd /k "dotnet run" 
+cd src\services\interface && start cmd /k "dotnet run"
+cd src\services\bd && start cmd /k "dotnet run"
+cd src\services\websocket && start cmd /k "dotnet run"
+cd src\services\sudoku_gen && start cmd /k "dotnet run"
+//cd src\services\display_api && start cmd /k "dotnet run" 
 //start chrome "%cd%\src\frontend\game.html"
 
 

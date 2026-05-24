@@ -25,3 +25,23 @@ jobs:
       - name: servico
         working-directory: src/services/bd
         run: dotnet run teste
+
+  testar-interface:
+    needs: testar-banco-de-dados
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: teste
+        working-directory: tests/Interface.tests
+        run: dotnet test
+
+  testar-sudoku-gen:
+    needs: testar-interface
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: teste
+        working-directory: tests/Sudoku.tests
+        run: dotnet test

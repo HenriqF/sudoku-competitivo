@@ -17,6 +17,7 @@ using Microsoft.Extensions.Primitives;
 using System.Text;
 using System.Collections.Concurrent;
 
+namespace Interface;
 
 public class Interface
 {
@@ -156,6 +157,10 @@ public class Interface
         app.UseSwaggerUI();
         app.UseHttpsRedirection();
 
+        app.MapGet("/online", () =>
+        {
+            return Results.Ok("sim!");
+        });
 
         app.MapPost("/login", async (Login data) =>
         {   
@@ -334,7 +339,6 @@ public class Interface
         });
 
 
-
         ConcurrentDictionary<string, (DateTime, string)> solicitacoes = new(); //token, (data, nome)
         ConcurrentDictionary<string, string> solicitando = new();              //nome, token
         app.MapGet("/jogartoken/{nome}", (HttpContext cont, string nome) =>
@@ -425,3 +429,4 @@ public class Interface
 }
 public record Login(string nome, string senha);
 public record Cadastro(string nome, string email, string senha);
+public partial class Program { }

@@ -4,26 +4,16 @@ requisitos:
 
     Planejamento de atividades - Apresentar as evidências quanto ao planejamento da execução com cronograma e divisão de tarefas.
     Diagramas - Diagramas de Casos de Uso, Diagrama de Classes, Diagrama de Entidade-Relacionamento, Diagrama de Sequência, etc.
-
-    APIs para servirem de CRUD completo (Create, Read, Update e Delete) para as principais entidades do sistema;
     
 
     Implementar pelo menos 5 casos de testes automatizados;
     Arquivo Readme: descrevendo o projeto e guia de uso com instruções necessárias para sua utilização/
 
 
-completos:
-
-    Swagger bem documentado: fazer uso de swagger, ou ferramenta similar, com boa documentação online;
-    Banco de dados utilizando containers Docker e framework ORM (Object–Relational Mapping framework);
 
 
 dotnet sln add services/s/s.csproj
 dotnet add services/s/s.csproj reference contracts/contracts.csproj
-
-
-
-
 
 
 
