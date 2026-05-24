@@ -9,11 +9,10 @@ env:
   MYSQL_DATABASE: bd
   MYSQL_ROOT_PASSWORD: 123
 
-
 jobs:
-  testar-banco-de-dados:
-    runs-on: ubuntu-latest
 
+  testar:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -22,36 +21,10 @@ jobs:
         working-directory: src/services/bd
         run: docker compose up -d --build --wait
         
-      - name: servico
+      - name: interacao-bd-docker
         working-directory: src/services/bd
         run: dotnet run teste
 
-  testar-interface:
-    needs: testar-banco-de-dados
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: teste
-        working-directory: tests/Interface.tests
-        run: dotnet test
-
-  testar-sudoku-gen:
-    needs: testar-interface
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: teste
-        working-directory: tests/Sudoku.tests
-        run: dotnet test
-
-  testar-websockey:
-    needs: testar-sudoku-gen
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: teste
-        working-directory: tests/Websocket.tests
-        run: dotnet test
+      - name: testes-simples
+        working-directory: src
+        run: dotnet test --configuration Release -m
