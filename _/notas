@@ -19,6 +19,4 @@ dotnet add services/s/s.csproj reference contracts/contracts.csproj
 
 
 A fazer:
-    Deleção de contas?
     Modo zen
-    Sistema de reportar?????

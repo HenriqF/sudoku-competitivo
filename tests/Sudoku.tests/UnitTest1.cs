@@ -17,7 +17,8 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Program>>
 
     [Theory]
     [InlineData("/online", "sim!")]
-    public async Task Online_ReturnsJsonString(string end, string resp)
+    [InlineData("/new", null)]
+    public async Task Sudoku_ReturnsJsonString(string end, string? resp)
     {
         HttpClient client = _factory!.CreateClient();
 
@@ -29,6 +30,10 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Program>>
             "application/json",
             response.Content.Headers.ContentType!.MediaType
         );
-        Assert.Contains(resp, await response.Content.ReadAsStringAsync());
+        if (resp != null)
+        {
+            Assert.Contains(resp!, await response.Content.ReadAsStringAsync());
+        }
+
     }
 }
