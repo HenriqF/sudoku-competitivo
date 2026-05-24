@@ -1,3 +1,5 @@
+const click_sound = new Audio("sons/click.mp3");
+
 const infoNome = document.getElementById("nome");
 const infoEmail = document.getElementById("email");
 const infoFoto = document.getElementById("foto");
@@ -32,7 +34,10 @@ async function tokenValido() {
 }
 
 function sair(){
-    localStorage.clear()
+    localStorage.clear();
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
     document.getElementById("login").click();
 }
 
@@ -109,6 +114,11 @@ function csTOtimer(cs){
 }
 
 async function jogar(){
+
+    click_sound.pause();
+    click_sound.currentTime = 0;
+    click_sound.play();
+
     const response = await fetch(`https://${host}:7185/jogartoken/${nome_user}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${jwt_token}`}
