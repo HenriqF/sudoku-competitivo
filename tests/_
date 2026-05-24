@@ -1,0 +1,3 @@
+dotnet add teste.csproj reference porraloca.csproj
+dotnet add tests/Interface.tests/Interface.tests.csproj reference src/services/interface/interface.csproj
+dotnet sln add ../tests/Interface.tests/Interface.tests.csproj
