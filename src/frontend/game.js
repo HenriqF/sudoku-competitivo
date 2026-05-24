@@ -3,7 +3,7 @@ const strike1 = new Audio("sons/strike1.mp3");
 const strike2 = new Audio("sons/strike2.mp3");
 const perdeu = new Audio("sons/morte.mp3");
 const ganhou = new Audio("sons/victory.mp3");
-const comecou = new Audio("sons/countdown.mp3")
+const comecou = new Audio("sons/countdown.mp3");
 
 if(localStorage.getItem("tok")!==null){
 
@@ -29,6 +29,7 @@ if(localStorage.getItem("tok")!==null){
         }
 
         if(message.startsWith("sudoku:")){
+            document.getElementById("playground").style.display = "flex";
             document.getElementById("sus").style.display = "block";
             let match_info = message.split(' ');
             jogando(match_info[1], match_info[2]);
@@ -138,12 +139,8 @@ if(localStorage.getItem("tok")!==null){
         click_sound.play();
     }
 
-    function desistir(){
-        sock.send("abandonar")
-        click_sound.pause();
-        click_sound.currentTime = 0;
-        click_sound.play();
-    }
+    function desistir(){sock.send("abandonar")}
+
 }
 
 let timerInterval;
