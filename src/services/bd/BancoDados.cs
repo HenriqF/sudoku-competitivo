@@ -286,7 +286,7 @@ public class Program
         return true;
     }
 
-    static async Task<Usuario?> userDoEmail(AppDbContext cont, string email)
+    static async Task<Usuario?> user_do_email(AppDbContext cont, string email)
     {
         Usuario? user = null;
         try
@@ -512,7 +512,7 @@ public class Program
         {
             try
             {
-                Usuario? us = await userDoEmail(cont, cadastro.email);
+                Usuario? us = await user_do_email(cont, cadastro.email);
                 if(us != null)
                 {
                     return Results.Conflict("nnao criado");
