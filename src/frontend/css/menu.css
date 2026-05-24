@@ -224,7 +224,30 @@ button{
     margin-left: auto;
     margin-right: auto;
     box-shadow: #000000;
+    border-radius: 10px;
     &:hover{
         background: #005fd3;
+        animation: rebola 1500ms infinite 0ms;
     }
+}
+
+#zen_but{
+    position: absolute;
+    margin-top: -910px;
+    width: 245px;
+    height: 40px;
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding-top: 10px;
+    padding-bottom: 30px;
+}
+
+@keyframes rebola{
+    0% { transform: rotate(0deg); }
+    5% { transform: rotate(1deg); }
+    15% { transform: rotate(-1deg); }
+    25% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
 }

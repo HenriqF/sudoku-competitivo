@@ -1,5 +1,4 @@
 body{
-    /* background-color: #cfeecd; */
     background-color: #f0f2f5;
     font-family: consolas;
 }
@@ -174,8 +173,10 @@ button{
     margin-left: auto;
     margin-right: auto;
     box-shadow: #000000;
+    border-radius: 10px;
     &:hover{
         background: #005fd3;
+        animation: rebola 1500ms infinite;
     }
 }
 
@@ -408,4 +409,11 @@ button{
         font-size: 200px;
         color: rgb(132, 219, 0);
     }
+}
+@keyframes rebola{
+    0% { transform: rotate(0deg); }
+    5% { transform: rotate(1deg); }
+    15% { transform: rotate(-1deg); }
+    25% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
 }

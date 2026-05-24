@@ -19,6 +19,8 @@ if(localStorage.getItem("token")!==null && tokenValido()){
     
 }else document.getElementById("login").click();
 
+click_sound.play();
+
 async function tokenValido() {
     try{
         const response = await fetch(`https://${host}:7185/jwtvalido/${localStorage.getItem("token")}`);
@@ -35,9 +37,6 @@ async function tokenValido() {
 
 function sair(){
     localStorage.clear();
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
     document.getElementById("login").click();
 }
 
@@ -115,10 +114,6 @@ function csTOtimer(cs){
 
 async function jogar(){
 
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
-
     const response = await fetch(`https://${host}:7185/jogartoken/${nome_user}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${jwt_token}`}
@@ -133,5 +128,7 @@ async function jogar(){
 function mudarDados(){
     document.getElementById("mudar_info").click();
 };
+
+function zen(){document.getElementById("zen").click()}
 
 leader()
