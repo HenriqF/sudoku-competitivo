@@ -20,7 +20,7 @@ using System.Threading.Channels;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices; /* eu MARCELO botei isso */
-namespace Sockets.WebSocketServer;
+namespace WebSocketServer;
 
 
 
@@ -379,7 +379,13 @@ public class WebSocketServer
         
         app.UseWebSockets();
 
-
+        app.Map("/online", async context =>
+        {
+            if (!context.WebSockets.IsWebSocketRequest) return;
+            using var web_socket = await context.WebSockets.AcceptWebSocketAsync();
+            await MessageClientAsync($"sim!", web_socket);
+            return;
+        });
 
         app.Map("/ws/{token}", async context =>
         {
@@ -456,6 +462,8 @@ public class WebSocketServer
             }
         });
 
+    
+
         app.Run();
     }
 }
@@ -497,3 +505,5 @@ public record mm_player_info{
         saiu = false;
     }
 };
+
+public partial class Program { }

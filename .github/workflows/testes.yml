@@ -45,3 +45,13 @@ jobs:
       - name: teste
         working-directory: tests/Sudoku.tests
         run: dotnet test
+
+  testar-websockey:
+    needs: testar-sudoku-gen
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: teste
+        working-directory: tests/Websocket.tests
+        run: dotnet test

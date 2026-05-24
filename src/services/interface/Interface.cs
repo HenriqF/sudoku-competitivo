@@ -162,6 +162,17 @@ public class Interface
             return Results.Ok("sim!");
         });
 
+        app.MapGet("/zen", async () =>
+        {
+            var client = new HttpClient();
+            new_sudokus? sudoku = await client.GetFromJsonAsync<new_sudokus>(
+                "http://localhost:5121/new"
+            );
+            if (sudoku == null) return Results.InternalServerError();
+    
+            return Results.Ok(sudoku.boards[0] + sudoku.boards[1]);
+        });
+
         app.MapPost("/login", async (Login data) =>
         {   
             try
