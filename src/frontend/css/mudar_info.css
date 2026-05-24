@@ -124,9 +124,19 @@ button {
     margin-top: 30px;
     margin-bottom: 0px;
     font-size: 1.3rem;
+    border-radius: 10px;
     &:hover{
         background: #005fd3;
+        animation: rebola 1500ms infinite;
     }
+}
+
+@keyframes rebola{
+    0% { transform: rotate(0deg); }
+    5% { transform: rotate(1deg); }
+    15% { transform: rotate(-1deg); }
+    25% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
 }
 
 h2{

@@ -1,0 +1,146 @@
+body{
+    background-color: #f0f2f5;
+    font-family: consolas;
+}
+textarea{
+    width: 2.9rem;
+    height: 2rem;
+    resize: none;
+    text-align: center;
+    background-color: white;
+    padding-top: 0.6rem;
+    padding-bottom: 0.5rem;
+    font-size: 1.6rem;
+    border: none;
+    border-radius: 3px;
+    color: black;
+    margin-right: -5px;
+    box-shadow: 0 0 5px 1px rgba(0,0,0,.2) inset;
+    &:focus{
+        outline-color: #007bff;
+    }
+}
+
+textarea:disabled{
+    color: #87898b;
+}
+
+#sus{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 70px;
+    background-color: white;
+    padding: 2.5rem; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding-top: 40px;
+    width: 345px;
+    text-align: center;
+}
+.last{
+    margin-right: 1rem;    
+}
+
+#final{
+    margin-top: 1.5rem;
+    width: 345px;
+    height: 60px;
+    background: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    font-size: 1.6rem;
+    padding-top: 15px;
+    padding-bottom: 25px;
+    &:hover{
+        background: #005fd3;
+    }
+}
+
+#strikes{
+    margin-top: 13px;
+    margin-bottom: -20px;
+    color: white;
+}
+
+#voltar{
+    margin-top: 20px;
+    margin-left: 1540px;
+    width: 345px;
+    height: 60px;
+    background: rgb(255, 118, 118);
+    color: white; 
+    border: none; 
+    cursor: pointer;
+    font-size: 1.6rem;
+    padding-top: 15px;
+    padding-bottom: 25px;
+    &:hover{
+        background: rgb(218, 80, 80);
+    }
+}
+
+button{
+    font-family: consolas;
+    border-radius: 10px;
+    &:hover{
+        animation: rebola 1500ms infinite;
+    }
+}
+
+#posgame{
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+#posgame h1{
+    font-size: 80px;
+    margin-bottom: 0px;
+    color: #007bff;
+}
+
+#posgame h3{
+    margin-top: 0px;
+    color: #aaaaaa;
+    margin-bottom: 150px;
+}
+
+#posgame button{
+    width: 500px; 
+    padding: 20px;
+    background: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    margin-top: 60px;
+    margin-bottom: 0rem;
+    font-size: 2rem;
+    font-family: consolas;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: #000000;
+    &:hover{
+        background: #005fd3;
+    }
+}
+.shake {
+  animation: shakeitoff 100ms;
+}
+@keyframes shakeitoff {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  50% { transform: rotate(0eg); }
+  75% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes rebola{
+    0% { transform: rotate(0deg); }
+    5% { transform: rotate(1deg); }
+    15% { transform: rotate(-1deg); }
+    25% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+}

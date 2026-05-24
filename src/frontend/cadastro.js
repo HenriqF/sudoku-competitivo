@@ -7,6 +7,8 @@ const mensagem = document.getElementById("message");
 const click_sound = new Audio("sons/click.mp3");
 const algo_errado = new Audio("sons/algoerrado.mp3");
 
+click_sound.play();
+
 function algoERRADO(){
     click_sound.pause();
     click_sound.currentTime = 0;
@@ -32,9 +34,6 @@ function trocar(){
 
 
 async function fazerSignup(){
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
 
     if(!validarCadastro()){
         return;
