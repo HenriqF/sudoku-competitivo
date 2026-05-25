@@ -35,7 +35,7 @@ async function fazerLogin(){
     
     try {
 
-        const response = await fetch(`http://${host}:5269/login`, {
+        const response = await fetch(`https://${host}:7185/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": userLogin.value, "senha": senhaLogin.value })

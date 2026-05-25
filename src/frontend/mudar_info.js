@@ -262,7 +262,7 @@ async function fazerLogin(){
     
     try {
 
-        const response = await fetch(`http://${host}:5269/login`, {
+        const response = await fetch(`https://${host}:7185/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": novo_nome, "senha": novo_senha })
@@ -291,7 +291,7 @@ async function senhaConfirmacao(){
     
     try {
 
-        const response = await fetch(`http://${host}:5269/login`, {
+        const response = await fetch(`https://${host}:7185/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": nome_user, "senha": sen3.value })
@@ -320,7 +320,7 @@ const sen4 = document.getElementById("password4");
 async function deletar(){
 
     try {
-        const response = await fetch(`http://${host}:5269/deletarconta`, {
+        const response = await fetch(`https://${host}:7185/deletarconta`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": nome_user, "senha": sen4.value })
