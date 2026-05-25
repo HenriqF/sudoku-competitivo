@@ -42,7 +42,7 @@ async function fazerSignup(){
     try {
         var email = emailCadastro.value.toLowerCase();
 
-        const response = await fetch(`http://${host}:5269/cadastro`, {
+        const response = await fetch(`https://${host}:7185/cadastro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": userCadastro.value, "email": email, "senha": senhaCadastro.value })
@@ -112,7 +112,7 @@ function validarCadastro(){
 async function fazerLogin(){
     try {
 
-        const response = await fetch(`http://${host}:5269/login`, {
+        const response = await fetch(`https://${host}:7185/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "nome": userCadastro.value, "senha": senhaCadastro.value })

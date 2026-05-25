@@ -1,22 +1,2 @@
 dotnet dev-certs https --trust
-
-requisitos:
-
-    Planejamento de atividades - Apresentar as evidências quanto ao planejamento da execução com cronograma e divisão de tarefas.
-    Diagramas - Diagramas de Casos de Uso, Diagrama de Classes, Diagrama de Entidade-Relacionamento, Diagrama de Sequência, etc.
-    
-
-    Implementar pelo menos 5 casos de testes automatizados;
-    Arquivo Readme: descrevendo o projeto e guia de uso com instruções necessárias para sua utilização/
-
-
-
-
-dotnet sln add services/s/s.csproj
-dotnet add services/s/s.csproj reference contracts/contracts.csproj
-
-
-
-
-A fazer:
-    Modo zen
+https://*:7185;http://*:5269",
