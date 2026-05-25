@@ -7,7 +7,7 @@ const comecou = new Audio("sons/countdown.mp3");
 
 if(localStorage.getItem("tok")!==null){
 
-    const sock = new WebSocket(`ws://${host}:5015/ws/${localStorage.getItem("tok")}`); 
+    const sock = new WebSocket(`wss://${host}:7010/ws/${localStorage.getItem("tok")}`); 
 
     sock.onopen = () => {
         sock.send("jogar");
