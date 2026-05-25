@@ -8,6 +8,7 @@ using System.Reflection.Metadata;
 using System.Security.Cryptography; /* eu MARCELO botei isso */
 using contracts;
 using System.Text.Json;
+using Pomelo.EntityFrameworkCore.MySql.Internal;
 
 
 public class Usuario
@@ -61,6 +62,7 @@ public class AppDbContext : DbContext
 {
     public DbSet<Usuario> usuarios { get; set; }
     public DbSet<Stats> sudoku_stats { get; set; }
+    public DbSet<Partida> partidas { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -87,7 +89,6 @@ public class AppDbContext : DbContext
         {   
             user.ToTable("usuarios");
             user.HasKey(u => u.id);
-
 
             user.HasOne(u => u.Stats).WithOne(s => s.Usuario).HasForeignKey<Stats>(s => s.user_id);
         });
@@ -364,8 +365,9 @@ public class Program
 
         foreach (PopUsuario pu in pop_users)
         {
-            await novo_user(cont, pu.Nome!, pu.Email!, pu.Senha!, pu.Elo, pu.Foto!);
-            Console.WriteLine(pu.Nome);
+            if(await novo_user(cont, pu.Nome!, pu.Email!, pu.Senha!, pu.Elo, pu.Foto!)){
+                Console.WriteLine(pu.Nome);
+            }
         }
         Environment.Exit(0);
     }

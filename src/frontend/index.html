@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defina o IP</title>
+    <style>
+        #main{
+            margin: 150px;
+            padding: 50px auto;
+            display: flex;
+            flex-direction: column;
+        }
+        input{
+            width: 300px;
+            height: 40px;
+            font-size: 15px;
+            text-align: center;
+            margin: 80px auto 40px auto;
+        }
+        button{
+            width: 300px;
+            height: 40px;
+            font-size: 15px;
+            text-align: center;
+            margin: 30px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <input type="text" name="" id="ip" placeholder="digite o ip">
+        <button onclick="enviar()">ENVIAR</button>
+        <button onclick="online()">ONLINE</button>
+          
+    </div>
+
+    <a href="login.html" id="login"></a>
+    <a href="" target="_blank" rel="noopener noreferrer" id="online"></a>
+    
+    <script src="js/persistent.js"></script>
+</body>
+</html>

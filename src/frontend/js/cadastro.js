@@ -5,7 +5,9 @@ const senhaConfirm = document.getElementById("password2");
 const mensagem = document.getElementById("message");
 
 const click_sound = new Audio("sons/click.mp3");
+click_sound.preload = 'auto';
 const algo_errado = new Audio("sons/algoerrado.mp3");
+algo_errado.preload = 'auto';
 
 click_sound.play();
 

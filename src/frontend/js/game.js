@@ -1,9 +1,15 @@
 const click_sound = new Audio("sons/click.mp3");
+click_sound.preload = 'auto';
 const strike1 = new Audio("sons/strike1.mp3");
+strike1.preload = 'auto';
 const strike2 = new Audio("sons/strike2.mp3");
+strike2.preload = 'auto';
 const perdeu = new Audio("sons/morte.mp3");
+perdeu.preload = 'auto';
 const ganhou = new Audio("sons/victory.mp3");
+ganhou.preload = 'auto';
 const comecou = new Audio("sons/countdown.mp3");
+comecou.preload = 'auto';
 
 if(localStorage.getItem("tok")!==null){
 
@@ -96,10 +102,11 @@ click_sound.play();
 
     sock.onerror = (erro) => {
         console.error("erro");
+        menu();
     };
 
     sock.onclose = () => {
-        setTimeout(ligar, 200);
+        menu();
     };
 
 
@@ -248,9 +255,6 @@ perdedor(20);
 
 function menu() {
     document.getElementById("menu").click();
-    click_sound.pause();
-    click_sound.currentTime = 0;
-    click_sound.play();
 }
 
 let txtStrikes;
