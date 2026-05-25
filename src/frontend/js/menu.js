@@ -1,4 +1,5 @@
 const click_sound = new Audio("sons/click.mp3");
+click_sound.preload = 'auto';
 
 const infoNome = document.getElementById("nome");
 const infoEmail = document.getElementById("email");
@@ -37,7 +38,7 @@ async function tokenValido() {
 
 function sair(){
     localStorage.clear();
-    document.getElementById("login").click();
+    document.getElementById("indexhtml").click();
 }
 
 async function leader() {

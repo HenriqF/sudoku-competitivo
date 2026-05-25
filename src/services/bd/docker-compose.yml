@@ -11,6 +11,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: mysqladmin ping --protocol=tcp -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:

@@ -371,6 +371,7 @@ public class WebSocketServer
         builder.Services.AddHostedService(servp => servp.GetRequiredService<MatchMaker>());
 
         var app = builder.Build();
+        app.UseHttpsRedirection();
         cf = app.Services.GetRequiredService<IHttpClientFactory>();
 
         mm = app.Services.GetRequiredService<MatchMaker>();

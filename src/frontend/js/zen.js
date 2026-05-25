@@ -6,11 +6,14 @@ let erros;
 let strikes= 0;
 
 const strike1 = new Audio("sons/strike1.mp3");
+strike1.preload = 'auto';
 const strike2 = new Audio("sons/strike2.mp3");
+strike2.preload = 'auto';
 
 const ganhou = new Audio("sons/victory.mp3");
-const algoerrado = new Audio("sons/algoerrado.mp3");
+ganhou.preload = 'auto';
 const click_sound = new Audio("sons/click.mp3");
+click_sound.preload = 'auto';
 
 
 async function jogar(){
