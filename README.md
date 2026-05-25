@@ -1,4 +1,4 @@
-## Sistema de Mini-Sudoku Ranqueado
+# [Sistema de Sudoku 6x6 Ranqueado](https://marcelomiyazaki.github.io/demo-proj-final/)
 
 Uma plataforma que permite usuários a competirem para ver quem consegue resolver um problema de sudoku 6x6 mais rápido, com sistema de ELO.
 
